@@ -31,6 +31,27 @@
 
   <title>myproject</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Add Firebase SDKs -->
+  <script defer src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.1.3/firebase-storage.js"></script>
+
+  <!-- Your Firebase configuration -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMEUQ8XN3FjIWqU98RK0td9euIj_227E",
+      authDomain: "smart-retail-app-4b6a5.firebaseapp.com",
+      projectId: "smart-retail-app-4b6a5",
+      storageBucket: "smart-retail-app-4b6a5.appspot.com",
+      messagingSenderId: "396405032929",
+      appId: "1:396405032929:web:6b642e7dcb02cbe91434a0"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>

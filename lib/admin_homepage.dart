@@ -4,14 +4,14 @@ class AdminHomepage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: Text('Admin Homepage'),
           bottom: TabBar(
             tabs: [
               Tab(icon: Icon(Icons.map), text: 'Map'),
-              Tab(icon: Icon(Icons.help), text: 'Request Help'),
+              Tab(icon: Icon(Icons.help), text: 'Customer Support'),
               Tab(icon: Icon(Icons.inventory), text: 'Stock Inventory'),
               Tab(icon: Icon(Icons.person), text: 'Customer Details'),
             ],
@@ -20,7 +20,7 @@ class AdminHomepage extends StatelessWidget {
         body: TabBarView(
           children: [
             MapPage(),
-            RequestHelpPage(),
+            CustomerSupportPage(),
             StockInventoryPage(),
             CustomerDetailsPage(),
           ],
@@ -39,11 +39,11 @@ class MapPage extends StatelessWidget {
   }
 }
 
-class RequestHelpPage extends StatelessWidget {
+class CustomerSupportPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text('Request Help Page'),
+      child: Text('Customer Support Page'),
     );
   }
 }
