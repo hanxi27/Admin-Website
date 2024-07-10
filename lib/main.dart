@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      debugShowCheckedModeBanner: false, // Add this line
       initialRoute: '/',
       routes: {
         '/': (context) => LoginPage(),
