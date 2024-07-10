@@ -1,4 +1,4 @@
-name: myproject
+name: my_new_project
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -30,6 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  firebase_core: any
+  firebase_auth: ^4.6.3
+  firebase_storage: ^11.2.4
+  
 
 
   # The following adds the Cupertino Icons font to your application.
