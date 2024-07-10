@@ -21,11 +21,17 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
         children: [
           Expanded(
             flex: 1,
-            child: StreamBuilder(
+            child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance.collection('help_requests').snapshots(),
               builder: (context, snapshot) {
-                if (!snapshot.hasData) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(child: Text('No help requests found'));
                 }
                 var helpRequests = snapshot.data!.docs;
                 return ListView.builder(
@@ -53,7 +59,7 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                 : Column(
                     children: [
                       Expanded(
-                        child: StreamBuilder(
+                        child: StreamBuilder<QuerySnapshot>(
                           stream: FirebaseFirestore.instance
                               .collection('help_requests')
                               .doc(selectedRequestId)
@@ -61,8 +67,14 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                               .orderBy('timestamp', descending: true)
                               .snapshots(),
                           builder: (context, snapshot) {
-                            if (!snapshot.hasData) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
                               return Center(child: CircularProgressIndicator());
+                            }
+                            if (snapshot.hasError) {
+                              return Center(child: Text('Error: ${snapshot.error}'));
+                            }
+                            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                              return Center(child: Text('No messages found'));
                             }
                             var messages = snapshot.data!.docs;
                             return ListView.builder(

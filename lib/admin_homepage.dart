@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'Map/map_page.dart' as map_page;
+import 'Customer_Support/customer_support_page.dart' as customer_support;
+import 'Stock_Inventory/stock_inventory_page.dart' as stock_inventory;
+import 'Customer_Detail/customer_details_page.dart' as customer_detail;
+import 'admin_management_page.dart';
 
 class AdminHomepage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           title: Text('Admin Homepage'),
@@ -14,54 +19,20 @@ class AdminHomepage extends StatelessWidget {
               Tab(icon: Icon(Icons.help), text: 'Customer Support'),
               Tab(icon: Icon(Icons.inventory), text: 'Stock Inventory'),
               Tab(icon: Icon(Icons.person), text: 'Customer Details'),
+              Tab(icon: Icon(Icons.admin_panel_settings), text: 'Admin Management'), // New tab for Admin Management
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            MapPage(),
-            CustomerSupportPage(),
-            StockInventoryPage(),
-            CustomerDetailsPage(),
+            map_page.MapPage(),
+            customer_support.CustomerSupportPage(),
+            stock_inventory.StockInventoryPage(),
+            customer_detail.CustomerDetailsPage(),
+            AdminManagementPage(), // New Admin Management Page
           ],
         ),
       ),
-    );
-  }
-}
-
-class MapPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Map Page'),
-    );
-  }
-}
-
-class CustomerSupportPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Customer Support Page'),
-    );
-  }
-}
-
-class StockInventoryPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Stock Inventory Page'),
-    );
-  }
-}
-
-class CustomerDetailsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Customer Details Page'),
     );
   }
 }

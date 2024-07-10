@@ -6,6 +6,7 @@ import 'Customer_Support/customer_support_page.dart' as customer_support;
 import 'Map/map_page.dart' as map_page;
 import 'Stock_Inventory/stock_inventory_page.dart' as stock_inventory;
 import 'Customer_Detail/customer_details_page.dart' as customer_detail;
+import 'admin_management_page.dart'; // New import for Admin Management Page
 import 'login_page.dart';
 
 Future<void> main() async {
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
         '/customersupport': (context) => customer_support.CustomerSupportPage(),
         '/stock_inventory': (context) => stock_inventory.StockInventoryPage(),
         '/customer_details': (context) => customer_detail.CustomerDetailsPage(),
+        '/admin_management': (context) => AdminManagementPage(), // New route for Admin Management Page
       },
     );
   }
