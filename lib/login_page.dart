@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'admin_homepage.dart';
 
 class LoginPage extends StatefulWidget {
@@ -11,14 +12,18 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final String _validEmail = 'innoadmin@.com';
-  final String _validPassword = 'innoadmin@.com';
+  final String _validEmail = 'innoadmin@example.com';
+  final String _validPassword = 'adminPassword';
 
-  void _login() {
+  void _login() async {
     if (_formKey.currentState!.validate()) {
-      if (_emailController.text == _validEmail && _passwordController.text == _validPassword) {
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
         Navigator.pushReplacementNamed(context, '/admin_homepage');
-      } else {
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Invalid email or password')),
         );

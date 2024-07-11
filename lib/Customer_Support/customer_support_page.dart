@@ -1,6 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: CustomerSupportPage(),
+    );
+  }
+}
 
 class CustomerSupportPage extends StatefulWidget {
   @override
@@ -10,6 +26,30 @@ class CustomerSupportPage extends StatefulWidget {
 class _CustomerSupportPageState extends State<CustomerSupportPage> {
   String? selectedRequestId;
   final TextEditingController _messageController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  final String adminEmail = 'admin@example.com'; // Replace with your admin email
+
+  Future<void> _signInAdmin() async {
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: adminEmail, // Replace with admin email
+        password: 'adminPassword', // Replace with admin password
+      );
+      User? user = userCredential.user;
+      if (user != null) {
+        print('Admin signed in: ${user.email}');
+      }
+    } catch (e) {
+      print('Failed to sign in: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _signInAdmin(); // Automatically sign in the admin on app start
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,9 +122,10 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                               itemCount: messages.length,
                               itemBuilder: (context, index) {
                                 var message = messages[index];
+                                String sender = message['sender'] == adminEmail ? 'admin' : message['sender'];
                                 return ListTile(
                                   title: Text(message['text']),
-                                  subtitle: Text(message['sender']),
+                                  subtitle: Text(sender),
                                 );
                               },
                             );
@@ -108,16 +149,25 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                               icon: Icon(Icons.send),
                               onPressed: () async {
                                 if (_messageController.text.isNotEmpty) {
-                                  await FirebaseFirestore.instance
-                                      .collection('help_requests')
-                                      .doc(selectedRequestId)
-                                      .collection('messages')
-                                      .add({
-                                    'sender': 'admin',
-                                    'text': _messageController.text,
-                                    'timestamp': Timestamp.now(),
-                                  });
-                                  _messageController.clear();
+                                  try {
+                                    User? user = _auth.currentUser;
+                                    if (user != null) {
+                                      await FirebaseFirestore.instance
+                                          .collection('help_requests')
+                                          .doc(selectedRequestId)
+                                          .collection('messages')
+                                          .add({
+                                        'sender': user.email == adminEmail ? 'admin' : user.email,
+                                        'text': _messageController.text,
+                                        'timestamp': Timestamp.now(),
+                                      });
+                                      _messageController.clear();
+                                    } else {
+                                      print('Admin is not authenticated');
+                                    }
+                                  } catch (e) {
+                                    print('Failed to send message: $e');
+                                  }
                                 }
                               },
                             ),
