@@ -28,12 +28,10 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
   final TextEditingController _messageController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  final String adminEmail = 'admin@example.com'; // Replace with your admin email
-
   Future<void> _signInAdmin() async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: adminEmail, // Replace with admin email
+        email: 'innoadmin@example.com', // Replace with admin email
         password: 'adminPassword', // Replace with admin password
       );
       User? user = userCredential.user;
@@ -122,10 +120,9 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                               itemCount: messages.length,
                               itemBuilder: (context, index) {
                                 var message = messages[index];
-                                String sender = message['sender'] == adminEmail ? 'admin' : message['sender'];
                                 return ListTile(
                                   title: Text(message['text']),
-                                  subtitle: Text(sender),
+                                  subtitle: Text(message['sender'] == 'innoadmin@example.com' ? 'Admin' : message['sender']),
                                 );
                               },
                             );
@@ -157,7 +154,7 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                                           .doc(selectedRequestId)
                                           .collection('messages')
                                           .add({
-                                        'sender': user.email == adminEmail ? 'admin' : user.email,
+                                        'sender': user.email == 'innoadmin@example.com' ? 'Admin' : user.email,
                                         'text': _messageController.text,
                                         'timestamp': Timestamp.now(),
                                       });
