@@ -25,6 +25,7 @@ class CustomerSupportPage extends StatefulWidget {
 
 class _CustomerSupportPageState extends State<CustomerSupportPage> {
   String? selectedRequestId;
+  String? selectedUsername;
   final TextEditingController _messageController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -59,36 +60,63 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
         children: [
           Expanded(
             flex: 1,
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('help_requests').snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Center(child: Text('No help requests found'));
-                }
-                var helpRequests = snapshot.data!.docs;
-                return ListView.builder(
-                  itemCount: helpRequests.length,
-                  itemBuilder: (context, index) {
-                    var request = helpRequests[index];
-                    return ListTile(
-                      title: Text(request['username']),
-                      subtitle: Text(request['message']),
-                      onTap: () {
-                        setState(() {
-                          selectedRequestId = request.id;
-                        });
-                      },
-                    );
-                  },
-                );
-              },
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(16.0),
+                  color: Colors.grey[200],
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Customer',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance.collection('help_requests').snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      }
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return Center(child: Text('No help requests found'));
+                      }
+                      var helpRequests = snapshot.data!.docs;
+                      return ListView.builder(
+                        itemCount: helpRequests.length,
+                        itemBuilder: (context, index) {
+                          var request = helpRequests[index];
+                          return ListTile(
+                            title: Text(request['username']),
+                            subtitle: Text(request['message']),
+                            onTap: () {
+                              setState(() {
+                                selectedRequestId = request.id;
+                                selectedUsername = request['username'];
+                              });
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
+          ),
+          VerticalDivider(
+            color: Colors.grey,
+            width: 1,
           ),
           Expanded(
             flex: 2,
@@ -96,6 +124,18 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                 ? Center(child: Text('Select a request to view messages'))
                 : Column(
                     children: [
+                      Container(
+                        padding: EdgeInsets.all(16.0),
+                        color: Colors.grey[200],
+                        width: double.infinity,
+                        child: Text(
+                          selectedUsername ?? '',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
                       Expanded(
                         child: StreamBuilder<QuerySnapshot>(
                           stream: FirebaseFirestore.instance
@@ -122,7 +162,7 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                                 var message = messages[index];
                                 return ListTile(
                                   title: Text(message['text']),
-                                  subtitle: Text(message['sender'] == 'innoadmin@example.com' ? 'Admin' : message['sender']),
+                                  subtitle: Text(message['sender'] == 'Admin' ? 'Admin' : message['sender']),
                                 );
                               },
                             );
@@ -154,7 +194,7 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                                           .doc(selectedRequestId)
                                           .collection('messages')
                                           .add({
-                                        'sender': user.email == 'innoadmin@example.com' ? 'Admin' : user.email,
+                                        'sender': 'Admin',
                                         'text': _messageController.text,
                                         'timestamp': Timestamp.now(),
                                       });
