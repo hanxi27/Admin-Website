@@ -32,7 +32,7 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
   Future<void> _signInAdmin() async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: 'innoadmin@example.com', // Replace with admin email
+        email: 'admin@example.com', // Replace with admin email
         password: 'adminPassword', // Replace with admin password
       );
       User? user = userCredential.user;
@@ -98,7 +98,6 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                           var request = helpRequests[index];
                           return ListTile(
                             title: Text(request['username']),
-                            subtitle: Text(request['message']),
                             onTap: () {
                               setState(() {
                                 selectedRequestId = request.id;
@@ -160,9 +159,18 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                               itemCount: messages.length,
                               itemBuilder: (context, index) {
                                 var message = messages[index];
-                                return ListTile(
-                                  title: Text(message['text']),
-                                  subtitle: Text(message['sender'] == 'Admin' ? 'Admin' : message['sender']),
+                                final isAdmin = message['sender'] == 'Admin';
+                                return Align(
+                                  alignment: isAdmin ? Alignment.centerRight : Alignment.centerLeft,
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    margin: EdgeInsets.symmetric(vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: isAdmin ? Colors.blue[100] : Colors.grey[300],
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(message['text']),
+                                  ),
                                 );
                               },
                             );
