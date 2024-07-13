@@ -36,8 +36,13 @@ class _EditProductState extends State<EditProduct> {
   }
 
   void _saveProduct() {
-    // Implement save product logic here
-    Navigator.pop(context);
+    setState(() {
+      widget.product['title'] = _nameController.text;
+      widget.product['price'] = _priceController.text;
+      widget.product['category'] = _selectedCategory;
+      // No need to update image as it's assumed static
+    });
+    Navigator.pop(context, true); // Return true to indicate product was updated
   }
 
   @override

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ViewProduct extends StatelessWidget {
   final Map<String, String> product;
   final int quantity;
-
+  
   ViewProduct({required this.product, this.quantity = 10});
 
   @override

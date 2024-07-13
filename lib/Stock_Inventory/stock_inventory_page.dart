@@ -13,6 +13,14 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
   String selectedCategory = 'All';
   int? selectedIndex;
 
+  @override
+  void initState() {
+    super.initState();
+    loadProducts().then((_) {
+      setState(() {}); // Update the state after loading products
+    });
+  }
+
   List<Map<String, String>> get filteredProducts {
     List<Map<String, String>> filtered = allProducts
         .where((product) =>
@@ -33,17 +41,24 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
     );
   }
 
-  void _editProduct(Map<String, String> product) {
-    showDialog(
+  void _editProduct(Map<String, String> product) async {
+    bool isUpdated = await showDialog(
       context: context,
       builder: (BuildContext context) {
         return EditProduct(product: product, quantity: 10);
       },
     );
+    if (isUpdated) {
+      setState(() {});
+      saveProducts(); // Save the updated products
+    }
   }
 
   void _deleteProduct(Map<String, String> product) {
-    // Implement delete product logic here
+    setState(() {
+      allProducts.remove(product);
+      saveProducts();
+    });
   }
 
   void _toggleOptions(int index) {
