@@ -42,7 +42,7 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return ViewProduct(product: product, quantity: 10);
+        return ViewProduct(product: product, quantity: int.parse(product['quantity']!));
       },
     );
   }
@@ -51,7 +51,7 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
     bool isUpdated = await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return EditProduct(product: product, quantity: 10);
+        return EditProduct(product: product);
       },
     );
     if (isUpdated) {
@@ -172,43 +172,18 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
                         ),
                       ),
                       items: [
-                        DropdownMenuItem(
-                          value: 'All',
-                          child: Text('All'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'Nutrition',
-                          child: Text('Nutrition')),
-                        DropdownMenuItem(
-                          value: 'Supplement',
-                          child: Text('Supplement')),
-                        DropdownMenuItem(
-                          value: 'Tonic',
-                          child: Text('Tonic')),
-                        DropdownMenuItem(
-                          value: 'Foot Treatment',
-                          child: Text('Foot Treatment')),
-                        DropdownMenuItem(
-                          value: 'Traditional Medicine',
-                          child: Text('Traditional Medicine')),
-                        DropdownMenuItem(
-                          value: 'Groceries',
-                          child: Text('Groceries')),
-                        DropdownMenuItem(
-                          value: 'Coffee',
-                          child: Text('Coffee')),
-                        DropdownMenuItem(
-                          value: 'Dairy Product',
-                          child: Text('Dairy Product')),
-                        DropdownMenuItem(
-                          value: 'Make Up',
-                          child: Text('Make Up')),
-                        DropdownMenuItem(
-                          value: 'Pets Care',
-                          child: Text('Pets Care')),
-                        DropdownMenuItem(
-                          value: 'Hair Care',
-                          child: Text('Hair Care')),
+                        DropdownMenuItem(value: 'All', child: Text('All')),
+                        DropdownMenuItem(value: 'Nutrition', child: Text('Nutrition')),
+                        DropdownMenuItem(value: 'Supplement', child: Text('Supplement')),
+                        DropdownMenuItem(value: 'Tonic', child: Text('Tonic')),
+                        DropdownMenuItem(value: 'Foot Treatment', child: Text('Foot Treatment')),
+                        DropdownMenuItem(value: 'Traditional Medicine', child: Text('Traditional Medicine')),
+                        DropdownMenuItem(value: 'Groceries', child: Text('Groceries')),
+                        DropdownMenuItem(value: 'Coffee', child: Text('Coffee')),
+                        DropdownMenuItem(value: 'Dairy Product', child: Text('Dairy Product')),
+                        DropdownMenuItem(value: 'Make Up', child: Text('Make Up')),
+                        DropdownMenuItem(value: 'Pets Care', child: Text('Pets Care')),
+                        DropdownMenuItem(value: 'Hair Care', child: Text('Hair Care')),
                       ],
                       onChanged: (value) {
                         setState(() {

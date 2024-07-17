@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'dart:convert'; // Import this for base64 encoding
+import 'dart:convert';
 import 'package:firebase_database/firebase_database.dart';
 
 class AddProduct extends StatefulWidget {
@@ -20,7 +20,7 @@ class _AddProductState extends State<AddProduct> {
   late TextEditingController _quantityController;
   late TextEditingController _priceController;
   late String _selectedCategory;
-  dynamic _selectedImage; // Can be File or Uint8List
+  dynamic _selectedImage;
 
   @override
   void initState() {
@@ -28,7 +28,7 @@ class _AddProductState extends State<AddProduct> {
     _nameController = TextEditingController();
     _quantityController = TextEditingController();
     _priceController = TextEditingController();
-    _selectedCategory = 'Nutrition'; // Default category
+    _selectedCategory = 'Nutrition';
   }
 
   @override
@@ -70,6 +70,7 @@ class _AddProductState extends State<AddProduct> {
         "title": _nameController.text,
         "category": _selectedCategory,
         "price": _priceController.text,
+        "quantity": _quantityController.text,  // Added quantity
         "image": imageString,
       };
 

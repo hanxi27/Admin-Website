@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 
 class EditProduct extends StatefulWidget {
   final Map<String, String> product;
-  final int quantity;
 
-  EditProduct({required this.product, this.quantity = 10});
+  EditProduct({required this.product});
 
   @override
   _EditProductState createState() => _EditProductState();
@@ -21,7 +20,7 @@ class _EditProductState extends State<EditProduct> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.product['title']);
-    _quantityController = TextEditingController(text: widget.quantity.toString());
+    _quantityController = TextEditingController(text: widget.product['quantity']);
     _priceController = TextEditingController(text: widget.product['price']);
     _selectedCategory = widget.product['category']!;
     _selectedImage = widget.product['image']!;
@@ -39,6 +38,7 @@ class _EditProductState extends State<EditProduct> {
     setState(() {
       widget.product['title'] = _nameController.text;
       widget.product['price'] = _priceController.text;
+      widget.product['quantity'] = _quantityController.text;
       widget.product['category'] = _selectedCategory;
       // No need to update image as it's assumed static
     });
@@ -90,7 +90,6 @@ class _EditProductState extends State<EditProduct> {
                 decoration: InputDecoration(
                   labelText: 'Price',
                   border: OutlineInputBorder(),
-                  //prefixText: 'RM ',
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -102,50 +101,17 @@ class _EditProductState extends State<EditProduct> {
                   border: OutlineInputBorder(),
                 ),
                 items: [
-                  DropdownMenuItem(
-                    value: 'Nutrition',
-                    child: Text('Nutrition'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Supplement',
-                    child: Text('Supplement'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Tonic',
-                    child: Text('Tonic'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Foot Treatment',
-                    child: Text('Foot Treatment'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Traditional Medicine',
-                    child: Text('Traditional Medicine'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Groceries',
-                    child: Text('Groceries'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Coffee',
-                    child: Text('Coffee'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Dairy Product',
-                    child: Text('Dairy Product'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Make Up',
-                    child: Text('Make Up'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Pets Care',
-                    child: Text('Pets Care'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Hair Care',
-                    child: Text('Hair Care'),
-                  ),
+                  DropdownMenuItem(value: 'Nutrition', child: Text('Nutrition')),
+                  DropdownMenuItem(value: 'Supplement', child: Text('Supplement')),
+                  DropdownMenuItem(value: 'Tonic', child: Text('Tonic')),
+                  DropdownMenuItem(value: 'Foot Treatment', child: Text('Foot Treatment')),
+                  DropdownMenuItem(value: 'Traditional Medicine', child: Text('Traditional Medicine')),
+                  DropdownMenuItem(value: 'Groceries', child: Text('Groceries')),
+                  DropdownMenuItem(value: 'Coffee', child: Text('Coffee')),
+                  DropdownMenuItem(value: 'Dairy Product', child: Text('Dairy Product')),
+                  DropdownMenuItem(value: 'Make Up', child: Text('Make Up')),
+                  DropdownMenuItem(value: 'Pets Care', child: Text('Pets Care')),
+                  DropdownMenuItem(value: 'Hair Care', child: Text('Hair Care')),
                 ],
                 onChanged: (value) {
                   setState(() {
