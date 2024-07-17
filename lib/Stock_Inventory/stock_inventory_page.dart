@@ -7,6 +7,7 @@ import 'dart:io'; // Import this for File
 import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'dart:typed_data'; // For Uint8List
 import 'dart:convert'; // For base64 encoding
+import 'package:firebase_database/firebase_database.dart';
 
 class StockInventoryPage extends StatefulWidget {
   @override
@@ -59,11 +60,23 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
     }
   }
 
-  void _deleteProduct(Map<String, String> product) {
-    setState(() {
-      allProducts.remove(product);
-      saveProducts();
+  void _deleteProduct(Map<String, String> product) async {
+    final databaseReference = FirebaseDatabase.instance.ref();
+    DatabaseEvent event = await databaseReference.child('products').once();
+    DataSnapshot snapshot = event.snapshot;
+    Map<dynamic, dynamic> products = snapshot.value as Map<dynamic, dynamic>;
+    String? keyToDelete;
+    products.forEach((key, value) {
+      if (Map<String, String>.from(value as Map<dynamic, dynamic>) == product) {
+        keyToDelete = key;
+      }
     });
+    if (keyToDelete != null) {
+      await databaseReference.child('products').child(keyToDelete!).remove();
+      setState(() {
+        allProducts.remove(product);
+      });
+    }
   }
 
   void _toggleOptions(int index) {

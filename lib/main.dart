@@ -1,28 +1,20 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'admin_homepage.dart';
 import 'Customer_Support/customer_support_page.dart' as customer_support;
 import 'Map/map_page.dart' as map_page;
 import 'Stock_Inventory/stock_inventory_page.dart' as stock_inventory;
 import 'Customer_Detail/customer_details_page.dart' as customer_detail;
 import 'login_page.dart';
-import 'firebase_options.dart'; // Make sure this import exists
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  try {
-    if (kIsWeb) {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-    } else {
-      await Firebase.initializeApp();
-    }
-    runApp(MyApp());
-  } catch (e) {
-    print('Failed to initialize Firebase: $e');
-  }
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

@@ -47,6 +47,7 @@ class DefaultFirebaseOptions {
     projectId: 'smart-retail-app-4b6a5',
     authDomain: 'smart-retail-app-4b6a5.firebaseapp.com',
     storageBucket: 'smart-retail-app-4b6a5.appspot.com',
+    databaseURL: 'https://smart-retail-app-4b6a5-default-rtdb.asia-southeast1.firebasedatabase.app/',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -55,6 +56,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '396405032929',
     projectId: 'smart-retail-app-4b6a5',
     storageBucket: 'smart-retail-app-4b6a5.appspot.com',
+    databaseURL: 'https://smart-retail-app-4b6a5-default-rtdb.asia-southeast1.firebasedatabase.app/',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -66,6 +68,7 @@ class DefaultFirebaseOptions {
     androidClientId: '396405032929-lv90aivlqqm0357eshmrq6orobc631rk.apps.googleusercontent.com',
     iosClientId: '396405032929-anvggs4enind9uiq68akfvb11qkrgd7q.apps.googleusercontent.com',
     iosBundleId: 'com.example.myproject',
+    databaseURL: 'https://smart-retail-app-4b6a5-default-rtdb.asia-southeast1.firebasedatabase.app/',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -77,6 +80,7 @@ class DefaultFirebaseOptions {
     androidClientId: '396405032929-lv90aivlqqm0357eshmrq6orobc631rk.apps.googleusercontent.com',
     iosClientId: '396405032929-anvggs4enind9uiq68akfvb11qkrgd7q.apps.googleusercontent.com',
     iosBundleId: 'com.example.myproject',
+    databaseURL: 'https://smart-retail-app-4b6a5-default-rtdb.asia-southeast1.firebasedatabase.app/',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
@@ -86,6 +90,6 @@ class DefaultFirebaseOptions {
     projectId: 'smart-retail-app-4b6a5',
     authDomain: 'smart-retail-app-4b6a5.firebaseapp.com',
     storageBucket: 'smart-retail-app-4b6a5.appspot.com',
+    databaseURL: 'https://smart-retail-app-4b6a5-default-rtdb.asia-southeast1.firebasedatabase.app/',
   );
-
 }

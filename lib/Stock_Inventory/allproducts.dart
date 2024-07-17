@@ -1,368 +1,417 @@
-import 'package:my_new_project/assets.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 List<Map<String, String>> allProducts = [];
 
 Future<void> loadProducts() async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getString('products');
-    if (data != null) {
-      List<dynamic> jsonData = json.decode(data);
-      allProducts = jsonData.map((item) => Map<String, String>.from(item)).toList();
-    } else {
-      // Load initial data from assets and save to the preferences
-      allProducts = [
-        {
-          "title": "Old Town 2 in 1 White Coffee (Coffee & Creamer) 375g",
-          "category": "Coffee",
-          "price": "RM 9.99",
-          "image": Assets.oldtown,
-        },
-        {
-          "title": "Old Town 3-in-1 Hazelnut Instant White Coffee 570g",
-          "category": "Coffee",
-          "price": "RM 11.99",
-          "image": Assets.oldtownhazelnut,
-        },
-        {
-          "title": "Milo Original Chocolate Malt Drink 30g x 18",
-          "category": "Dairy Product",
-          "price": "RM 16.99",
-          "image": Assets.milo,
-        },
-        {
-          "title": "Milo Soft Pack 2kg",
-          "category": "Dairy Product",
-          "price": "RM 27.99",
-          "image": Assets.milo2kg,
-        },
-        {
-          "title": "Farm Fresh Cows Milk 1L",
-          "category": "Dairy Product",
-          "price": "RM 8.40",
-          "image": Assets.milk,
-        },
-        {
-          "title": "FREEMAN Instant Foot Peeling Spray 118ml",
-          "image": Assets.freeman,
-          "category": "Foot Treatment",
-          "price": "RM 35.90",
-        },
-        {
-          "title": "ELLGY Cracked Heel Cream 50g",
-          "image": Assets.ellgy,
-          "category": "Foot Treatment",
-          "price": "RM 24.00",
-        },
-        {
-          "title": "FREEMAN HYDRATING FOOT LOTION PEPPERMINT&PLUM 150ML",
-          "image": Assets.lotion,
-          "category": "Foot Treatment",
-          "price": "RM 18.00",
-        },
-        {
-          "title": "Nestle Koko Krunch 450g",
-          "category": "Groceries",
-          "price": "RM 12.99",
-          "image": Assets.kokokrunch,
-        },
-        {
-          "title": "Saji Brand Cooking Oil 5kg",
-          "category": "Groceries",
-          "price": "RM 25.99",
-          "image": Assets.saji,
-        },
-        {
-          "title": "Knife Cooking Oil 5kg",
-          "category": "Groceries",
-          "price": "RM 24.99",
-          "image": Assets.knifeoil,
-        },
-        {
-          "title": "Maggi Curry Flavour Instant Noodles 79g x 5",
-          "category": "Groceries",
-          "price": "RM 4.99",
-          "image": Assets.maggiekari,
-        },
-        {
-          "title": "Yeo's Chicken Curry with Potatoes 280g",
-          "category": "Groceries",
-          "price": "RM 5.99",
-          "image": Assets.yeoscurry,
-        },
-        {
-          "title": "Jasmine Super 5 White Rice Imported 5kg",
-          "category": "Groceries",
-          "price": "RM 18.99",
-          "image": Assets.jasmine,
-        },
-        {
-          "title": "Ayam Brand Mackerel in Tomato Sauce 230g",
-          "category": "Groceries",
-          "price": "RM 7.99",
-          "image": Assets.tomatosauce,
-        },
-        {
-          "title": "Cap Rambutan 5% Super Import White Rice 5kg",
-          "category": "Groceries",
-          "price": "RM 17.99",
-          "image": Assets.rambutans,
-        },
-        {
-          "title": "Nestle Kit Kat Sharebag Value Pack 17g x 24",
-          "category": "Groceries",
-          "price": "RM 14.99",
-          "image": Assets.kitkat,
-        },
-        {
-          "title": "KUNDAL Honey & Macadamia Nature Shampoo - Cherry Blossom 500ml",
-          "image": Assets.kundalshampoo,
-          "category": "Hair Care",
-          "price": "RM 29.99",
-        },
-        {
-          "title": "Kundal Honey & Macadamia Hair Treatment - Cherry Blossom 500ml",
-          "image": Assets.kundalhoney,
-          "category": "Hair Care",
-          "price": "RM 34.99",
-        },
-        {
-          "title": "Grafen Perfume Hair Shampoo Emerald Blossom 500ml (Anti-Hair Loss)",
-          "image": Assets.grafen,
-          "category": "Hair Care",
-          "price": "RM 39.99",
-        },
-        {
-          "title": "Ryo Hair Loss Expert Scalp Massage Essence 80ml",
-          "image": Assets.ryo,
-          "category": "Hair Care",
-          "price": "RM 44.99",
-        },
-        {
-          "title": "Kundal Caffeine Scalp Care Tonic 100ml",
-          "image": Assets.hairtonic,
-          "category": "Hair Care",
-          "price": "RM 49.99",
-        },
-        {
-          "title": "Pantene 3Mm Conditioner 480Ml Keratin Silky Smooth",
-          "image": Assets.pantene,
-          "category": "Hair Care",
-          "price": "RM 19.99",
-        },
-        {
-          "title": "Amino Mason Treatment Night Recipe Sleek 450Ml",
-          "image": Assets.amino,
-          "category": "Hair Care",
-          "price": "RM 29.99",
-        },
-        {
-          "title": "Ryo Damage Care And Nourishing Shampoo 480ml",
-          "image": Assets.ryodamage,
-          "category": "Hair Care",
-          "price": "RM 34.99",
-        },
-        {
-          "title": "Garnier Skin Naturals Micellar Water Pink 125ml",
-          "image": Assets.garnier,
-          "category": "Make Up",
-          "price": "RM 19.99",
-        },
-        {
-          "title": "Reihaku Hatomugi Whip Face Wash Cleansing Water (Make Up Remover) 200ml",
-          "image": Assets.hatomugi,
-          "category": "Make Up",
-          "price": "RM 24.99",
-        },
-        {
-          "title": "Garnier Micellar Salicylic BHA 125ml",
-          "image": Assets.garnierblue,
-          "category": "Make Up",
-          "price": "RM 21.99",
-        },
-        {
-          "title": "Silky White Bright Up Liquid Foundation 01 Light",
-          "image": Assets.foundation,
-          "category": "Make Up",
-          "price": "RM 29.99",
-        },
-        {
-          "title": "Palladio Herbal Foundation Tube PFS01 Ivory",
-          "image": Assets.palladio,
-          "category": "Make Up",
-          "price": "RM 34.99",
-        },
-        {
-          "title": "Palladio Herbal Foundation Tube PFS02 Porcelain",
-          "image": Assets.palladio02,
-          "category": "Make Up",
-          "price": "RM 34.99",
-        },
-        {
-          "title": "Palladio Dual Wet & Dry Foundation WD400 Laurel Nude",
-          "image": Assets.dryfoundation,
-          "category": "Make Up",
-          "price": "RM 39.99",
-        },
-        {
-          "title": "Palladio Dual Wet & Dry Foundation WD401 Ivory Myrrh",
-          "image": Assets.dryfoundation401,
-          "category": "Make Up",
-          "price": "RM 39.99",
-        },
-        {
-          "title": "Rimmel Wonder'Ink Ultimate Waterproof Eyeliner",
-          "image": Assets.eyeliner,
-          "category": "Make Up",
-          "price": "RM 19.99",
-        },
-        {
-          "title": "SilkyGirl Long-Wearing Eyeliner 01 Black Black",
-          "image": Assets.eyelinerblack,
-          "category": "Make Up",
-          "price": "RM 17.99",
-        },
-        {
-          "title": "EYS Bird's Nest With Rock Sugar",
-          "image": Assets.birdnest,
-          "category": "Nutrition",
-          "price": "RM 139.99",
-        },
-        {
-          "title": "HM Euphoria Longana Honey",
-          "image": Assets.honey,
-          "category": "Nutrition",
-          "price": "RM 99.99",
-        },
-        {
-          "title": "Dog Dry Food Chicken & Veg 3kg",
-          "image": Assets.pedigree,
-          "category": "Pets Care",
-          "price": "RM 49.99",
-        },
-        {
-          "title": "Cat Wet Food Flake Tuna in Gravy 85gm",
-          "image": Assets.sheba,
-          "category": "Pets Care",
-          "price": "RM 3.99",
-        },
-        {
-          "title": "Dog Oral Care Dentastix Toy 60g",
-          "image": Assets.dogoral,
-          "category": "Pets Care",
-          "price": "RM 14.99",
-        },
-        {
-          "title": "Potty Here Training Aid Spray 8Oz",
-          "image": Assets.naturvet,
-          "category": "Pets Care",
-          "price": "RM 29.99",
-        },
-        {
-          "title": "Ear Wash Liquid 4Oz",
-          "image": Assets.earwash,
-          "category": "Pets Care",
-          "price": "RM 19.99",
-        },
-        {
-          "title": "Peony Anti-Bacteria Formula Pets Shampoo 400ml",
-          "image": Assets.shampoo,
-          "category": "Pets Care",
-          "price": "RM 24.99",
-        },
-        {
-          "title": "Unique Pet Shower Silicon Brush with Soap Container",
-          "image": Assets.brush,
-          "category": "Pets Care",
-          "price": "RM 15.99",
-        },
-        {
-          "title": "Swisse Ultiboost Vitamin C + Manuka Honey 120 Tablets",
-          "image": Assets.vitaminc,
-          "category": "Supplement",
-          "price": "RM 89.90",
-        },
-        {
-          "title": "Swisse Ultiboost High Strength Krill Oil 30 Capsules",
-          "image": Assets.krilloil,
-          "category": "Supplement",
-          "price": "RM 100.90",
-        },
-        {
-          "title": "Blackmores Digestive Enzymes Plus Capsule 60s",
-          "image": Assets.enzymesplus,
-          "category": "Supplement",
-          "price": "RM 79.80",
-        },
-        {
-          "title": "Blackmores Bio Ace Plus Capsule 30s",
-          "image": Assets.bioaceplus,
-          "category": "Supplement",
-          "price": "RM 99.00",
-        },
-        {
-          "title": "Blackmores Bio Zinc Capsule 168s",
-          "image": Assets.biozinc,
-          "category": "Supplement",
-          "price": "RM 95.00",
-        },
-        {
-          "title": "Blackmores Buffered C Capsule 30s",
-          "image": Assets.bufferedc,
-          "category": "Supplement",
-          "price": "RM 58.90",
-        },
-        {
-          "title": "EYS Pure Chicken Essence",
-          "image": Assets.chickenessence,
-          "category": "Tonic",
-          "price": "RM 119.99",
-        },
-        {
-          "title": "Brand's Essence of Chicken 70g x 30's",
-          "image": Assets.brands,
-          "category": "Tonic",
-          "price": "RM 159.99",
-        },
-        {
-          "title": "KANGAROO Eucalyptus Oil 28ml",
-          "image": Assets.kangaroo,
-          "category": "Traditional Medicine",
-          "price": "RM 9.29",
-        },
-        {
-          "title": "AXE Med Oil 10ml",
-          "image": Assets.kapak,
-          "category": "Traditional Medicine",
-          "price": "RM 6.70",
-        },
-        {
-          "title": "KWAN LOONG Kwan Loong Medicated Oil",
-          "image": Assets.kwan,
-          "category": "Traditional Medicine",
-          "price": "RM 13.90",
-        },
-        {
-          "title": "YU YEE Cap Limau Yu Yee Oil 10ml",
-          "image": Assets.yuyee,
-          "category": "Traditional Medicine",
-          "price": "RM 8.70",
-        },
-      ];
-      await saveProducts();
-    }
-  } catch (e) {
-    print("Error loading products: $e");
+  final databaseReference = FirebaseDatabase.instance.ref();
+  DatabaseEvent event = await databaseReference.child('products').once();
+  DataSnapshot snapshot = event.snapshot;
+  if (snapshot.value != null) {
+    List<dynamic> jsonData = snapshot.value as List<dynamic>;
+    allProducts = jsonData.map((item) => Map<String, String>.from(item as Map<dynamic, dynamic>)).toList();
+  } else {
+    // Load initial data from assets and save to the Firebase
+    allProducts = [
+      {
+        "title": "Old Town 2 in 1 White Coffee (Coffee & Creamer) 375g",
+        "category": "Coffee",
+        "price": "RM 9.99",
+        "image": "assets/images/oldtown.jpg",
+        "quantity": "10",
+      },
+      {
+        "title": "Old Town 3-in-1 Hazelnut Instant White Coffee 570g",
+        "category": "Coffee",
+        "price": "RM 11.99",
+        "image": "assets/images/oldtownhazelnut.jpg",
+        "quantity": "10",
+      },
+      {
+        "title": "Milo Original Chocolate Malt Drink 30g x 18",
+        "category": "Dairy Product",
+        "price": "RM 16.99",
+        "image": "assets/images/milo.jpg",
+        "quantity": "10",
+      },
+      {
+        "title": "Milo Soft Pack 2kg",
+        "category": "Dairy Product",
+        "price": "RM 27.99",
+        "image": "assets/images/milo2kg.jpg",
+        "quantity": "10",
+      },
+      {
+        "title": "Farm Fresh Cows Milk 1L",
+        "category": "Dairy Product",
+        "price": "RM 8.40",
+        "image": "assets/images/milk.jpg",
+        "quantity": "10",
+      },
+      {
+        "title": "FREEMAN Instant Foot Peeling Spray 118ml",
+        "image": "assets/images/freeman.jpg",
+        "category": "Foot Treatment",
+        "price": "RM 35.90",
+        "quantity": "10",
+      },
+      {
+        "title": "ELLGY Cracked Heel Cream 50g",
+        "image": "assets/images/ellgy.jpg",
+        "category": "Foot Treatment",
+        "price": "RM 24.00",
+        "quantity": "10",
+      },
+      {
+        "title": "FREEMAN HYDRATING FOOT LOTION PEPPERMINT&PLUM 150ML",
+        "image": "assets/images/lotion.jpg",
+        "category": "Foot Treatment",
+        "price": "RM 18.00",
+        "quantity": "10",
+      },
+      {
+        "title": "Nestle Koko Krunch 450g",
+        "category": "Groceries",
+        "price": "RM 12.99",
+        "image": "assets/images/kokokrunch.jpg",
+        "quantity": "10",
+      },
+      {
+        "title": "Saji Brand Cooking Oil 5kg",
+        "category": "Groceries",
+        "price": "RM 25.99",
+        "image": "assets/images/saji.jpg",
+        "quantity": "10",
+      },
+      {
+        "title": "Knife Cooking Oil 5kg",
+        "category": "Groceries",
+        "price": "RM 24.99",
+        "image": "assets/images/knifeoil.jpg",
+        "quantity": "10",
+      },
+      {
+        "title": "Maggi Curry Flavour Instant Noodles 79g x 5",
+        "category": "Groceries",
+        "price": "RM 4.99",
+        "image": "assets/images/maggiekari.jpg",
+        "quantity": "10",
+      },
+      {
+        "title": "Yeo's Chicken Curry with Potatoes 280g",
+        "category": "Groceries",
+        "price": "RM 5.99",
+        "image": "assets/images/yeoscurry.jpg",
+        "quantity": "10",
+      },
+      {
+        "title": "Jasmine Super 5 White Rice Imported 5kg",
+        "category": "Groceries",
+        "price": "RM 18.99",
+        "image": "assets/images/jasmine.jpg",
+        "quantity": "10",
+      },
+      {
+        "title": "Ayam Brand Mackerel in Tomato Sauce 230g",
+        "category": "Groceries",
+        "price": "RM 7.99",
+        "image": "assets/images/tomatosauce.jpg",
+        "quantity": "10",
+      },
+      {
+        "title": "Cap Rambutan 5% Super Import White Rice 5kg",
+        "category": "Groceries",
+        "price": "RM 17.99",
+        "image": "assets/images/rambutans.jpg",
+        "quantity": "10",
+      },
+      {
+        "title": "Nestle Kit Kat Sharebag Value Pack 17g x 24",
+        "category": "Groceries",
+        "price": "RM 14.99",
+        "image": "assets/images/kitkat.jpg",
+        "quantity": "10",
+      },
+      {
+        "title": "KUNDAL Honey & Macadamia Nature Shampoo - Cherry Blossom 500ml",
+        "image": "assets/images/kundalshampoo.jpg",
+        "category": "Hair Care",
+        "price": "RM 29.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Kundal Honey & Macadamia Hair Treatment - Cherry Blossom 500ml",
+        "image": "assets/images/kundalhoney.jpg",
+        "category": "Hair Care",
+        "price": "RM 34.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Grafen Perfume Hair Shampoo Emerald Blossom 500ml (Anti-Hair Loss)",
+        "image": "assets/images/grafen.jpg",
+        "category": "Hair Care",
+        "price": "RM 39.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Ryo Hair Loss Expert Scalp Massage Essence 80ml",
+        "image": "assets/images/ryo.jpg",
+        "category": "Hair Care",
+        "price": "RM 44.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Kundal Caffeine Scalp Care Tonic 100ml",
+        "image": "assets/images/hairtonic.jpg",
+        "category": "Hair Care",
+        "price": "RM 49.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Pantene 3Mm Conditioner 480Ml Keratin Silky Smooth",
+        "image": "assets/images/pantene.jpg",
+        "category": "Hair Care",
+        "price": "RM 19.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Amino Mason Treatment Night Recipe Sleek 450Ml",
+        "image": "assets/images/amino.jpg",
+        "category": "Hair Care",
+        "price": "RM 29.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Ryo Damage Care And Nourishing Shampoo 480ml",
+        "image": "assets/images/ryodamage.jpg",
+        "category": "Hair Care",
+        "price": "RM 34.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Garnier Skin Naturals Micellar Water Pink 125ml",
+        "image": "assets/images/garnier.jpg",
+        "category": "Make Up",
+        "price": "RM 19.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Reihaku Hatomugi Whip Face Wash Cleansing Water (Make Up Remover) 200ml",
+        "image": "assets/images/hatomugi.jpg",
+        "category": "Make Up",
+        "price": "RM 24.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Garnier Micellar Salicylic BHA 125ml",
+        "image": "assets/images/garnierblue.jpg",
+        "category": "Make Up",
+        "price": "RM 21.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Silky White Bright Up Liquid Foundation 01 Light",
+        "image": "assets/images/foundation.jpg",
+        "category": "Make Up",
+        "price": "RM 29.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Palladio Herbal Foundation Tube PFS01 Ivory",
+        "image": "assets/images/palladio.jpg",
+        "category": "Make Up",
+        "price": "RM 34.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Palladio Herbal Foundation Tube PFS02 Porcelain",
+        "image": "assets/images/palladio02.jpg",
+        "category": "Make Up",
+        "price": "RM 34.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Palladio Dual Wet & Dry Foundation WD400 Laurel Nude",
+        "image": "assets/images/dryfoundation.jpg",
+        "category": "Make Up",
+        "price": "RM 39.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Palladio Dual Wet & Dry Foundation WD401 Ivory Myrrh",
+        "image": "assets/images/dryfoundation401.jpg",
+        "category": "Make Up",
+        "price": "RM 39.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Rimmel Wonder'Ink Ultimate Waterproof Eyeliner",
+        "image": "assets/images/eyeliner.jpg",
+        "category": "Make Up",
+        "price": "RM 19.99",
+        "quantity": "10",
+      },
+      {
+        "title": "SilkyGirl Long-Wearing Eyeliner 01 Black Black",
+        "image": "assets/images/eyelinerblack.jpg",
+        "category": "Make Up",
+        "price": "RM 17.99",
+        "quantity": "10",
+      },
+      {
+        "title": "EYS Bird's Nest With Rock Sugar",
+        "image": "assets/images/birdnest.jpg",
+        "category": "Nutrition",
+        "price": "RM 139.99",
+        "quantity": "10",
+      },
+      {
+        "title": "HM Euphoria Longana Honey",
+        "image": "assets/images/honey.jpg",
+        "category": "Nutrition",
+        "price": "RM 99.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Dog Dry Food Chicken & Veg 3kg",
+        "image": "assets/images/pedigree.jpg",
+        "category": "Pets Care",
+        "price": "RM 49.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Cat Wet Food Flake Tuna in Gravy 85gm",
+        "image": "assets/images/sheba.jpg",
+        "category": "Pets Care",
+        "price": "RM 3.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Dog Oral Care Dentastix Toy 60g",
+        "image": "assets/images/dogoral.jpg",
+        "category": "Pets Care",
+        "price": "RM 14.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Potty Here Training Aid Spray 8Oz",
+        "image": "assets/images/naturvet.jpg",
+        "category": "Pets Care",
+        "price": "RM 29.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Ear Wash Liquid 4Oz",
+        "image": "assets/images/earwash.jpg",
+        "category": "Pets Care",
+        "price": "RM 19.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Peony Anti-Bacteria Formula Pets Shampoo 400ml",
+        "image": "assets/images/shampoo.jpg",
+        "category": "Pets Care",
+        "price": "RM 24.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Unique Pet Shower Silicon Brush with Soap Container",
+        "image": "assets/images/brush.jpg",
+        "category": "Pets Care",
+        "price": "RM 15.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Swisse Ultiboost Vitamin C + Manuka Honey 120 Tablets",
+        "image": "assets/images/vitaminc.jpg",
+        "category": "Supplement",
+        "price": "RM 89.90",
+        "quantity": "10",
+      },
+      {
+        "title": "Swisse Ultiboost High Strength Krill Oil 30 Capsules",
+        "image": "assets/images/krilloil.jpg",
+        "category": "Supplement",
+        "price": "RM 100.90",
+        "quantity": "10",
+      },
+      {
+        "title": "Blackmores Digestive Enzymes Plus Capsule 60s",
+        "image": "assets/images/enzymesplus.jpg",
+        "category": "Supplement",
+        "price": "RM 79.80",
+        "quantity": "10",
+      },
+      {
+        "title": "Blackmores Bio Ace Plus Capsule 30s",
+        "image": "assets/images/bioaceplus.jpg",
+        "category": "Supplement",
+        "price": "RM 99.00",
+        "quantity": "10",
+      },
+      {
+        "title": "Blackmores Bio Zinc Capsule 168s",
+        "image": "assets/images/biozinc.jpg",
+        "category": "Supplement",
+        "price": "RM 95.00",
+        "quantity": "10",
+      },
+      {
+        "title": "Blackmores Buffered C Capsule 30s",
+        "image": "assets/images/bufferedc.jpg",
+        "category": "Supplement",
+        "price": "RM 58.90",
+        "quantity": "10",
+      },
+      {
+        "title": "EYS Pure Chicken Essence",
+        "image": "assets/images/chickenessence.jpg",
+        "category": "Tonic",
+        "price": "RM 119.99",
+        "quantity": "10",
+      },
+      {
+        "title": "Brand's Essence of Chicken 70g x 30's",
+        "image": "assets/images/brands.jpg",
+        "category": "Tonic",
+        "price": "RM 159.99",
+        "quantity": "10",
+      },
+      {
+        "title": "KANGAROO Eucalyptus Oil 28ml",
+        "image": "assets/images/kangaroo.jpg",
+        "category": "Traditional Medicine",
+        "price": "RM 9.29",
+        "quantity": "10",
+      },
+      {
+        "title": "AXE Med Oil 10ml",
+        "image": "assets/images/kapak.jpg",
+        "category": "Traditional Medicine",
+        "price": "RM 6.70",
+        "quantity": "10",
+      },
+      {
+        "title": "KWAN LOONG Kwan Loong Medicated Oil",
+        "image": "assets/images/kwan.jpg",
+        "category": "Traditional Medicine",
+        "price": "RM 13.90",
+        "quantity": "10",
+      },
+      {
+        "title": "YU YEE Cap Limau Yu Yee Oil 10ml",
+        "image": "assets/images/yuyee.jpg",
+        "category": "Traditional Medicine",
+        "price": "RM 8.70",
+        "quantity": "10",
+      },
+    ];
+    await saveProducts();
   }
 }
 
 Future<void> saveProducts() async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('products', json.encode(allProducts));
-  } catch (e) {
-    print("Error saving products: $e");
-  }
+  final databaseReference = FirebaseDatabase.instance.ref();
+  await databaseReference.child('products').set(allProducts);
 }

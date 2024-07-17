@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert'; // Import this for base64 encoding
+import 'package:firebase_database/firebase_database.dart';
 
 class AddProduct extends StatefulWidget {
   @override
@@ -62,7 +63,7 @@ class _AddProductState extends State<AddProduct> {
       if (kIsWeb) {
         imageString = base64.encode(_selectedImage);
       } else {
-        imageString = (_selectedImage as File).path;
+        imageString = base64.encode(await (_selectedImage as File).readAsBytes());
       }
 
       final newProduct = {
@@ -71,10 +72,10 @@ class _AddProductState extends State<AddProduct> {
         "price": _priceController.text,
         "image": imageString,
       };
-      setState(() {
-        allProducts.add(newProduct.map((key, value) => MapEntry(key, value.toString())));
-      });
-      await saveProducts(); // Save to local storage
+
+      final databaseReference = FirebaseDatabase.instance.reference();
+      await databaseReference.child('products').push().set(newProduct);
+
       Navigator.pop(context, true); // Return true to indicate product was added
     } else if (_selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
