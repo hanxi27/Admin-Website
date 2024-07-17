@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_new_project/Customer_Detail/user_detail_page.dart'; // Correct import path
 
 class CustomerDetailsPage extends StatelessWidget {
   @override
@@ -38,12 +39,7 @@ class CustomerDetailsPage extends StatelessWidget {
               }
 
               // Check if all required fields exist in the document
-              bool hasRequiredFields = userData.containsKey('username') &&
-                  userData.containsKey('age') &&
-                  userData.containsKey('birthday') &&
-                  userData.containsKey('gender') &&
-                  userData.containsKey('occupation') &&
-                  userData.containsKey('email');
+              bool hasRequiredFields = userData.containsKey('username');
 
               if (!hasRequiredFields) {
                 return ListTile(
@@ -52,40 +48,18 @@ class CustomerDetailsPage extends StatelessWidget {
               }
 
               return ListTile(
-                title: Text('Username: ${userData['username']}'),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Age: ${userData['age']}'),
-                    Text('Birthday: ${userData['birthday']}'),
-                    Text('Gender: ${userData['gender']}'),
-                    Text('Occupation: ${userData['occupation']}'),
-                    Text('Email: ${userData['email']}'),
-                    StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(user.id)
-                          .collection('reviews')
-                          .snapshots(),
-                      builder: (context, reviewSnapshot) {
-                        if (reviewSnapshot.connectionState == ConnectionState.waiting) {
-                          return Text('Loading reviews...');
-                        }
-                        if (!reviewSnapshot.hasData || reviewSnapshot.data!.docs.isEmpty) {
-                          return Text('No reviews');
-                        }
-                        var reviews = reviewSnapshot.data!.docs;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: reviews.map((review) {
-                            var reviewData = review.data() as Map<String, dynamic>;
-                            return Text('Review: ${reviewData['content']}');
-                          }).toList(),
-                        );
-                      },
-                    ),
-                  ],
+                title: Text(
+                  userData['username'],
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UserDetailPage(userId: user.id),
+                    ),
+                  );
+                },
               );
             },
           );
