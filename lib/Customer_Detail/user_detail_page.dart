@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart'; // For formatting the timestamp
 
 class UserDetailPage extends StatelessWidget {
   final String userId;
@@ -32,15 +33,62 @@ class UserDetailPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Username: ${userData['username']}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Text('Username: ${userData['username'] ?? 'N/A'}',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
-                Text('Age: ${userData['age']}'),
-                Text('Birthday: ${userData['birthday']}'),
-                Text('Gender: ${userData['gender']}'),
-                Text('Occupation: ${userData['occupation']}'),
-                Text('Email: ${userData['email']}'),
+                Card(
+                  elevation: 4,
+                  margin: EdgeInsets.symmetric(vertical: 8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.cake),
+                            SizedBox(width: 8),
+                            Text('Age: ${userData['age'] ?? 'N/A'}', style: TextStyle(fontSize: 18)),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_today),
+                            SizedBox(width: 8),
+                            Text('Birthday: ${userData['birthday'] ?? 'N/A'}', style: TextStyle(fontSize: 18)),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(Icons.person),
+                            SizedBox(width: 8),
+                            Text('Gender: ${userData['gender'] ?? 'N/A'}', style: TextStyle(fontSize: 18)),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(Icons.work),
+                            SizedBox(width: 8),
+                            Text('Occupation: ${userData['occupation'] ?? 'N/A'}', style: TextStyle(fontSize: 18)),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(Icons.email),
+                            SizedBox(width: 8),
+                            Text('Email: ${userData['email'] ?? 'N/A'}', style: TextStyle(fontSize: 18)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 SizedBox(height: 16),
-                Text('Reviews:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('Reviews:', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
@@ -60,8 +108,22 @@ class UserDetailPage extends StatelessWidget {
                         itemCount: reviews.length,
                         itemBuilder: (context, index) {
                           var reviewData = reviews[index].data() as Map<String, dynamic>;
-                          return ListTile(
-                            title: Text(reviewData['content']),
+                          var timestamp = (reviewData['timestamp'] as Timestamp).toDate();
+                          var formattedTimestamp = DateFormat('yyyy-MM-dd – kk:mm').format(timestamp);
+
+                          return Card(
+                            elevation: 2,
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            child: ListTile(
+                              title: Text(reviewData['review'] ?? 'No content', style: TextStyle(fontSize: 18)),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Rating: ${reviewData['rating'] ?? 'N/A'}', style: TextStyle(fontSize: 16)),
+                                  Text('Timestamp: $formattedTimestamp', style: TextStyle(fontSize: 16)),
+                                ],
+                              ),
+                            ),
                           );
                         },
                       );
