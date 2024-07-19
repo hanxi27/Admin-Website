@@ -28,14 +28,12 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
   }
 
   List<Map<String, String>> get filteredProducts {
-    List<Map<String, String>> filtered = allProducts
+    return allProductsNotifier.value
         .where((product) =>
             (selectedCategory == 'All' || product['category'] == selectedCategory) &&
             (searchQuery.isEmpty ||
                 product['title']!.toLowerCase().contains(searchQuery.toLowerCase())))
         .toList();
-    filtered.sort((a, b) => a['title']!.compareTo(b['title']!));
-    return filtered;
   }
 
   void _viewProduct(Map<String, String> product) {
@@ -74,7 +72,7 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
     if (keyToDelete != null) {
       await databaseReference.child('products').child(keyToDelete!).remove();
       setState(() {
-        allProducts.remove(product);
+        allProductsNotifier.value.remove(product);
       });
     }
   }
@@ -196,91 +194,105 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
               ),
             ),
             Expanded(
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 6, // Adjusted to display 6 products per row
-                  childAspectRatio: 0.6, // Adjusted based on your design
-                ),
-                itemCount: filteredProducts.length,
-                itemBuilder: (context, index) {
-                  final product = filteredProducts[index];
-                  return GestureDetector(
-                    onTap: () => _toggleOptions(index),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black), // Black border
-                        borderRadius: BorderRadius.circular(10), // Rounded corners
-                      ),
-                      margin: EdgeInsets.all(4.0), // Margin around each product
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-                              child: _getImageWidget(product['image']!),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              product['title']!,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Text(
-                              product['price']!,
-                              style: TextStyle(color: Colors.grey[700]),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Text(
-                              product['category']!,
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                          if (selectedIndex == index)
-                            Column(
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () => _viewProduct(product),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                    minimumSize: Size(double.infinity, 30), // Set fixed height
-                                  ),
-                                  child: Text('View', style: TextStyle(color: Colors.white, fontSize: 12)),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () => _editProduct(product),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue,
-                                    minimumSize: Size(double.infinity, 30), // Set fixed height
-                                  ),
-                                  child: Text('Edit', style: TextStyle(color: Colors.white, fontSize: 12)),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () => _deleteProduct(product),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                    minimumSize: Size(double.infinity, 30), // Set fixed height
-                                  ),
-                                  child: Text('Delete', style: TextStyle(color: Colors.white, fontSize: 12)),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
+              child: ValueListenableBuilder<List<Map<String, String>>>(
+                valueListenable: allProductsNotifier,
+                builder: (context, allProducts, child) {
+                  List<Map<String, String>> filteredProducts = allProducts
+                      .where((product) =>
+                          (selectedCategory == 'All' || product['category'] == selectedCategory) &&
+                          (searchQuery.isEmpty ||
+                              product['title']!.toLowerCase().contains(searchQuery.toLowerCase())))
+                      .toList();
+
+                  filteredProducts.sort((a, b) => a['title']!.compareTo(b['title']!));
+
+                  return GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 6, // Adjusted to display 6 products per row
+                      childAspectRatio: 0.6, // Adjusted based on your design
                     ),
+                    itemCount: filteredProducts.length,
+                    itemBuilder: (context, index) {
+                      final product = filteredProducts[index];
+                      return GestureDetector(
+                        onTap: () => _toggleOptions(index),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black), // Black border
+                            borderRadius: BorderRadius.circular(10), // Rounded corners
+                          ),
+                          margin: EdgeInsets.all(4.0), // Margin around each product
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                                  child: _getImageWidget(product['image']!),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  product['title']!,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text(
+                                  product['price']!,
+                                  style: TextStyle(color: Colors.grey[700]),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text(
+                                  product['category']!,
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                              if (selectedIndex == index)
+                                Column(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () => _viewProduct(product),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green,
+                                        minimumSize: Size(double.infinity, 30), // Set fixed height
+                                      ),
+                                      child: Text('View', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () => _editProduct(product),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blue,
+                                        minimumSize: Size(double.infinity, 30), // Set fixed height
+                                      ),
+                                      child: Text('Edit', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () => _deleteProduct(product),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        minimumSize: Size(double.infinity, 30), // Set fixed height
+                                      ),
+                                      child: Text('Delete', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),

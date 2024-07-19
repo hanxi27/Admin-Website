@@ -1,10 +1,40 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:typed_data';
 
 class ViewProduct extends StatelessWidget {
   final Map<String, String> product;
   final int quantity;
-  
+
   ViewProduct({required this.product, this.quantity = 10});
+
+  bool _isBase64(String str) {
+    try {
+      base64Decode(str);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Widget _getImageWidget(String imagePath) {
+    if (_isBase64(imagePath)) {
+      Uint8List bytes = base64Decode(imagePath);
+      return Image.memory(
+        bytes,
+        width: 150,
+        height: 150,
+        fit: BoxFit.cover,
+      );
+    } else {
+      return Image.asset(
+        imagePath,
+        width: 150,
+        height: 150,
+        fit: BoxFit.cover,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,11 +47,7 @@ class ViewProduct extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              product['image']!,
-              width: 150,
-              height: 150,
-            ),
+            _getImageWidget(product['image']!),
             SizedBox(height: 16),
             Text(
               'Name: ${product['title']}',

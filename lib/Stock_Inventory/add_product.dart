@@ -77,6 +77,8 @@ class _AddProductState extends State<AddProduct> {
       final databaseReference = FirebaseDatabase.instance.reference();
       await databaseReference.child('products').push().set(newProduct);
 
+      allProductsNotifier.value = [...allProductsNotifier.value, newProduct]; // Add new product to ValueNotifier
+
       Navigator.pop(context, true); // Return true to indicate product was added
     } else if (_selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(

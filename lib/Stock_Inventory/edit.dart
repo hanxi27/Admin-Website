@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:my_new_project/Stock_Inventory/allproducts.dart';
 
 class EditProduct extends StatefulWidget {
   final Map<String, String> product;
@@ -34,6 +37,34 @@ class _EditProductState extends State<EditProduct> {
     super.dispose();
   }
 
+  bool _isBase64(String str) {
+    try {
+      base64Decode(str);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Widget _getImageWidget(String imagePath) {
+    if (_isBase64(imagePath)) {
+      Uint8List bytes = base64Decode(imagePath);
+      return Image.memory(
+        bytes,
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover,
+      );
+    } else {
+      return Image.asset(
+        imagePath,
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover,
+      );
+    }
+  }
+
   void _saveProduct() {
     setState(() {
       widget.product['title'] = _nameController.text;
@@ -42,6 +73,9 @@ class _EditProductState extends State<EditProduct> {
       widget.product['category'] = _selectedCategory;
       // No need to update image as it's assumed static
     });
+
+    allProductsNotifier.value = List.from(allProductsNotifier.value); // Notify listeners
+
     Navigator.pop(context, true); // Return true to indicate product was updated
   }
 
@@ -62,11 +96,7 @@ class _EditProductState extends State<EditProduct> {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 16),
-              Image.asset(
-                _selectedImage,
-                width: 100,
-                height: 100,
-              ),
+              _getImageWidget(_selectedImage),
               SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
