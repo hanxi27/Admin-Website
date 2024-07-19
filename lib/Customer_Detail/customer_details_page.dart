@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:my_new_project/Customer_Detail/user_detail_page.dart'; // Correct import path
+import 'user_detail_page.dart';
 
 class CustomerDetailsPage extends StatelessWidget {
   @override
@@ -8,6 +8,7 @@ class CustomerDetailsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Customer Details Page'),
+        backgroundColor: Colors.purple,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('users').snapshots(),
@@ -39,7 +40,12 @@ class CustomerDetailsPage extends StatelessWidget {
               }
 
               // Check if all required fields exist in the document
-              bool hasRequiredFields = userData.containsKey('username');
+              bool hasRequiredFields = userData.containsKey('username') &&
+                  userData.containsKey('age') &&
+                  userData.containsKey('birthday') &&
+                  userData.containsKey('gender') &&
+                  userData.containsKey('occupation') &&
+                  userData.containsKey('email');
 
               if (!hasRequiredFields) {
                 return ListTile(
@@ -47,19 +53,34 @@ class CustomerDetailsPage extends StatelessWidget {
                 );
               }
 
-              return ListTile(
-                title: Text(
-                  userData['username'],
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              String username = userData['username'];
+              String photoUrl = 'https://robohash.org/$username.png';
+
+              return Card(
+                margin: EdgeInsets.all(10),
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
                 ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => UserDetailPage(userId: user.id),
-                    ),
-                  );
-                },
+                child: ListTile(
+                  contentPadding: EdgeInsets.all(10),
+                  leading: CircleAvatar(
+                    backgroundImage: NetworkImage(photoUrl),
+                    radius: 30,
+                  ),
+                  title: Text(
+                    username,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => UserDetailPage(userId: user.id),
+                      ),
+                    );
+                  },
+                ),
               );
             },
           );
