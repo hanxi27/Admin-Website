@@ -58,25 +58,6 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
     }
   }
 
-  void _deleteProduct(Map<String, String> product) async {
-    final databaseReference = FirebaseDatabase.instance.ref();
-    DatabaseEvent event = await databaseReference.child('products').once();
-    DataSnapshot snapshot = event.snapshot;
-    Map<dynamic, dynamic> products = snapshot.value as Map<dynamic, dynamic>;
-    String? keyToDelete;
-    products.forEach((key, value) {
-      if (Map<String, String>.from(value as Map<dynamic, dynamic>) == product) {
-        keyToDelete = key;
-      }
-    });
-    if (keyToDelete != null) {
-      await databaseReference.child('products').child(keyToDelete!).remove();
-      setState(() {
-        allProductsNotifier.value.remove(product);
-      });
-    }
-  }
-
   void _toggleOptions(int index) {
     setState(() {
       selectedIndex = selectedIndex == index ? null : index;
@@ -209,7 +190,7 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
                   return GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 6, // Adjusted to display 6 products per row
-                      childAspectRatio: 0.6, // Adjusted based on your design
+                      childAspectRatio: 0.8, // Adjusted to make the cards less tall
                     ),
                     itemCount: filteredProducts.length,
                     itemBuilder: (context, index) {
@@ -277,14 +258,6 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
                                         minimumSize: Size(double.infinity, 30), // Set fixed height
                                       ),
                                       child: Text('Edit', style: TextStyle(color: Colors.white, fontSize: 12)),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () => _deleteProduct(product),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                        minimumSize: Size(double.infinity, 30), // Set fixed height
-                                      ),
-                                      child: Text('Delete', style: TextStyle(color: Colors.white, fontSize: 12)),
                                     ),
                                   ],
                                 ),
