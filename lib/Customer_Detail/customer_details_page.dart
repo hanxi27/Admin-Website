@@ -8,7 +8,7 @@ class CustomerDetailsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Customer Details Page'),
-        backgroundColor: Colors.purple,
+        backgroundColor: Color.fromARGB(255, 208, 139, 199),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('users').snapshots(),
