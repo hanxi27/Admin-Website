@@ -22,6 +22,12 @@ class _LoginPageState extends State<LoginPage> {
           email: _emailController.text,
           password: _passwordController.text,
         );
+
+        // Check the user's claims after login
+        FirebaseAuth.instance.currentUser!.getIdTokenResult().then((idTokenResult) {
+          print('User claims: ${idTokenResult.claims}');
+        });
+
         Navigator.pushReplacementNamed(context, '/admin_homepage');
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
