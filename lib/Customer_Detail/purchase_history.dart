@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';  // Add this for date formatting
 
 class PurchaseHistory extends StatelessWidget {
   final String userId;
@@ -36,19 +37,30 @@ class PurchaseHistory extends StatelessWidget {
             var items = List<Map<String, dynamic>>.from(purchase['items']);
             double totalPrice = purchase['totalPrice'];
 
+            // Format the timestamp to only display hour, minute, and second
+            var timestamp = purchase['timestamp'].toDate();
+            var formattedTimestamp = DateFormat('yyyy-MM-dd HH:mm:ss').format(timestamp);
+
             return Card(
               margin: EdgeInsets.all(8.0),
               child: ListTile(
-                title: Text('Purchase on ${purchase['timestamp'].toDate()}'),
+                title: Text('Purchase on $formattedTimestamp'),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: items
                       .asMap()
                       .entries
-                      .map((entry) => Text('${entry.key + 1}) ${entry.value['title']} - ${entry.value['price']} x ${entry.value['quantity']}'))
+                      .map((entry) {
+                        var item = entry.value;
+                        var title = item['title'] ?? 'N/A';
+                        var price = item['price'] ?? 'N/A';
+                        var quantity = item['quantity'] ?? 0;
+
+                        return Text('${entry.key + 1}) $title - $price x $quantity');
+                      })
                       .toList(),
                 ),
-                trailing: Text('Total: ${totalPrice.toStringAsFixed(2)}'),
+                trailing: Text('Total: ${totalPrice.toStringAsFixed(2)}', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             );
           },
