@@ -50,6 +50,11 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              Image.asset(
+                'assets/logo.png', // Make sure this path is correct
+                height: 100, // Adjust the height as needed
+              ),
+              SizedBox(height: 20),
               Text(
                 'Welcome to INNO Store',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),

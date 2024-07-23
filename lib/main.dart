@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart'; // Import this to use kIsWeb
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -11,7 +11,8 @@ import 'Customer_Detail/customer_details_page.dart' as customer_detail;
 import 'login_page.dart';
 import 'firebase_options.dart'; // Ensure this file exists
 import 'dashboard/dashboard_screen.dart'; // Import the dashboard screen
-import 'admin_management_page.dart'; // Import the admin management page
+import 'dashboard/revenue.dart'; // Import the revenue screen
+import 'dashboard/top_items.dart'; // Import the top items screen
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,6 +51,8 @@ class MyApp extends StatelessWidget {
         '/stock_inventory': (context) => stock_inventory.StockInventoryPage(),
         '/customer_details': (context) => customer_detail.CustomerDetailsPage(),
         '/dashboard': (context) => DashboardScreen(), // Add the dashboard route
+        '/revenue': (context) => RevenueScreen(), // Add the revenue route
+        '/top_items': (context) => TopItemsScreen(), // Add the top items route
       },
       navigatorObservers: <NavigatorObserver>[observer],
     );

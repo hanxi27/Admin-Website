@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'revenue.dart'; // Import the RevenueScreen
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -97,6 +98,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.show_chart),
+            onPressed: () {
+              Navigator.pushNamed(context, '/revenue'); // Navigate to the RevenueScreen
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
