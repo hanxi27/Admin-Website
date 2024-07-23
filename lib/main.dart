@@ -1,13 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'admin_homepage.dart';
 import 'Customer_Support/customer_support_page.dart' as customer_support;
 import 'Map/map_page.dart' as map_page;
 import 'Stock_Inventory/stock_inventory_page.dart' as stock_inventory;
 import 'Customer_Detail/customer_details_page.dart' as customer_detail;
 import 'login_page.dart';
-import 'firebase_options.dart'; // Make sure this import exists
+import 'firebase_options.dart'; // Ensure this file exists
+import 'dashboard/dashboard_screen.dart'; // Import the dashboard screen
+import 'admin_management_page.dart'; // Import the admin management page
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +30,9 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
+  static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  static FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -42,7 +49,9 @@ class MyApp extends StatelessWidget {
         '/customersupport': (context) => customer_support.CustomerSupportPage(),
         '/stock_inventory': (context) => stock_inventory.StockInventoryPage(),
         '/customer_details': (context) => customer_detail.CustomerDetailsPage(),
+        '/dashboard': (context) => DashboardScreen(), // Add the dashboard route
       },
+      navigatorObservers: <NavigatorObserver>[observer],
     );
   }
 }

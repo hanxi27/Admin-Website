@@ -19,7 +19,7 @@ class AdminHomepage extends StatelessWidget {
               Tab(icon: Icon(Icons.help), text: 'Customer Support'),
               Tab(icon: Icon(Icons.inventory), text: 'Stock Inventory'),
               Tab(icon: Icon(Icons.person), text: 'Customer Details'),
-              Tab(icon: Icon(Icons.admin_panel_settings), text: 'Admin Management'), // New tab for Admin Management
+              Tab(icon: Icon(Icons.admin_panel_settings), text: 'Admin Management'),
             ],
           ),
         ),
@@ -36,3 +36,5 @@ class AdminHomepage extends StatelessWidget {
     );
   }
 }
+
+
