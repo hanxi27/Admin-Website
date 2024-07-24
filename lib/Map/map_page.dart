@@ -29,10 +29,10 @@ class _MapPageState extends State<MapPage> {
                   child: LayoutBuilder(
                     builder: (context, constraints) {
                       // Define the aspect ratio of the floorplan image
-                      final aspectRatio = 1.5 / 1.0; // Width / Height
+                      final aspectRatio = 1.5; // Width / Height (1.5 / 1.0)
 
                       // Calculate the dimensions of the floorplan
-                      final floorplanWidth = constraints.maxWidth * 1.0;
+                      final floorplanWidth = constraints.maxWidth;
                       final floorplanHeight = floorplanWidth / aspectRatio;
 
                       // Calculate the size of the selectable regions
@@ -43,64 +43,72 @@ class _MapPageState extends State<MapPage> {
                         return (value - minValue) / (maxValue - minValue) * (maxPixel - minPixel) + minPixel;
                       }
 
-                      return InteractiveViewer(
-                        constrained: true,
-                        minScale: 0.5,
-                        maxScale: 1.0,
-                        child: GestureDetector(
-                          onTapDown: (details) {
-                            // Get the tap position relative to the widget
-                            final RenderBox box = context.findRenderObject() as RenderBox;
-                            final localOffset = box.globalToLocal(details.globalPosition);
-                            final tapX = localOffset.dx;
-                            final tapY = localOffset.dy;
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: SizedBox(
+                            width: floorplanWidth,
+                            height: floorplanHeight,
+                            child: InteractiveViewer(
+                              constrained: true,
+                              minScale: 0.3,
+                              maxScale: 1.0,
+                              child: GestureDetector(
+                                onTapDown: (details) {
+                                  // Get the tap position relative to the widget
+                                  final RenderBox box = context.findRenderObject() as RenderBox;
+                                  final localOffset = box.globalToLocal(details.globalPosition);
+                                  final tapX = localOffset.dx;
+                                  final tapY = localOffset.dy;
 
-                            // Map the tap coordinates to the original coordinate system
-                            final mappedX = (tapX / floorplanWidth) * 1.7 - 0.1;
-                            final mappedY = (tapY / floorplanHeight) * 1.2;
+                                  // Map the tap coordinates to the original coordinate system
+                                  final mappedX = (tapX / floorplanWidth) * 1.7 - 0.1;
+                                  final mappedY = (tapY / floorplanHeight) * 1.2;
 
-                            print('Tap position: $mappedX, $mappedY');
+                                  print('Tap position: $mappedX, $mappedY');
 
-                            // Determine which region was tapped
-                            for (myRegion.SelectableRegion region in myRegion.getSelectableRegions(floorplanWidth, floorplanHeight, mapCoordinate, dotSize, _onRegionTap)) {
-                              final regionLeft = region.left;
-                              final regionTop = region.top;
-                              final regionRight = regionLeft + region.width;
-                              final regionBottom = regionTop + region.height;
+                                  // Determine which region was tapped
+                                  for (myRegion.SelectableRegion region in myRegion.getSelectableRegions(floorplanWidth, floorplanHeight, mapCoordinate, dotSize, _onRegionTap)) {
+                                    final regionLeft = region.left;
+                                    final regionTop = region.top;
+                                    final regionRight = regionLeft + region.width;
+                                    final regionBottom = regionTop + region.height;
 
-                              if (tapX >= regionLeft && tapX <= regionRight &&
-                                  tapY >= regionTop && tapY <= regionBottom) {
-                                region.onTap();
-                                break;
-                              }
-                            }
-                          },
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                width: floorplanWidth,
-                                height: floorplanHeight,
-                                child: Image.asset(
-                                  'assets/map/floorplan.jpg',
-                                  fit: BoxFit.cover,
+                                    if (tapX >= regionLeft && tapX <= regionRight &&
+                                        tapY >= regionTop && tapY <= regionBottom) {
+                                      region.onTap();
+                                      break;
+                                    }
+                                  }
+                                },
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Image.asset(
+                                      'assets/map/floorplan.jpg',
+                                      fit: BoxFit.cover,
+                                      width: floorplanWidth,
+                                      height: floorplanHeight,
+                                    ),
+                                    ...myRegion.getSelectableRegions(floorplanWidth, floorplanHeight, mapCoordinate, dotSize, _onRegionTap).map((region) {
+                                      return Positioned(
+                                        left: region.left,
+                                        top: region.top,
+                                        child: GestureDetector(
+                                          onTap: region.onTap,
+                                          child: Container(
+                                            width: region.width,
+                                            height: region.height,
+                                            color: region.color,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ],
                                 ),
                               ),
-                              ...myRegion.getSelectableRegions(floorplanWidth, floorplanHeight, mapCoordinate, dotSize, _onRegionTap).map((region) {
-                                return Positioned(
-                                  left: region.left,
-                                  top: region.top,
-                                  child: GestureDetector(
-                                    onTap: region.onTap,
-                                    child: Container(
-                                      width: region.width,
-                                      height: region.height,
-                                      color: region.color,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            ],
+                            ),
                           ),
                         ),
                       );
