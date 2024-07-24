@@ -30,7 +30,7 @@ class AdminHomepage extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            map_page.MapPage(),
+            map_page.MapPage(coordinates: '(2.0, 2.0)'), // Set default coordinates here
             customer_support.CustomerSupportPage(),
             stock_inventory.StockInventoryPage(),
             customer_detail.CustomerDetailsPage(),

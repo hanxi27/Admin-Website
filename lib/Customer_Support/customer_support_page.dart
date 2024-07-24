@@ -1,22 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: CustomerSupportPage(),
-    );
-  }
-}
+import 'package:get/get.dart';
+import 'package:my_new_project/Map/map_page.dart'; // Import the MapPage
 
 class CustomerSupportPage extends StatefulWidget {
   @override
@@ -48,6 +34,16 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
   void initState() {
     super.initState();
     _signInAdmin(); // Automatically sign in the admin on app start
+  }
+
+  void _navigateToMap(BuildContext context, String coordinates) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => MapPage(
+          coordinates: coordinates,
+        ),
+      ),
+    );
   }
 
   @override
@@ -160,6 +156,11 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                               itemBuilder: (context, index) {
                                 var message = messages[index];
                                 final isAdmin = message['sender'] == 'Admin';
+                                final data = message.data() as Map<String, dynamic>;
+                                final String coordinates = data.containsKey('redDotCoordinates')
+                                    ? '(${data['redDotCoordinates']['x']}, ${data['redDotCoordinates']['y']})'
+                                    : '';
+
                                 return Align(
                                   alignment: isAdmin ? Alignment.centerRight : Alignment.centerLeft,
                                   child: Container(
@@ -169,7 +170,17 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                                       color: isAdmin ? Colors.blue[100] : Colors.grey[300],
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: Text(message['text']),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Flexible(child: Text(message['text'])),
+                                        if (!isAdmin && coordinates.isNotEmpty)
+                                          IconButton(
+                                            icon: Icon(Icons.location_on),
+                                            onPressed: () => _navigateToMap(context, coordinates),
+                                          ),
+                                      ],
+                                    ),
                                   ),
                                 );
                               },

@@ -3,12 +3,35 @@ import 'package:flutter/material.dart';
 import 'region.dart' as myRegion; // Import the region.dart file with a prefix
 
 class MapPage extends StatefulWidget {
+  final String coordinates;
+  MapPage({required this.coordinates});
+
   @override
   _MapPageState createState() => _MapPageState();
 }
 
 class _MapPageState extends State<MapPage> {
   String selectedCategory = '';
+  double redDotX = 2.0; // Default x-coordinate
+  double redDotY = 2.0; // Default y-coordinate
+
+  @override
+  void initState() {
+    super.initState();
+    _parseCoordinates();
+  }
+
+  void _parseCoordinates() {
+    if (widget.coordinates.isNotEmpty) {
+      List<String> coords = widget.coordinates.replaceAll('(', '').replaceAll(')', '').split(', ');
+      if (coords.length == 2) {
+        setState(() {
+          redDotX = double.parse(coords[0]);
+          redDotY = 1 - (double.parse(coords[1]));
+        });
+      }
+    }
+  }
 
   void _onRegionTap(String category) {
     setState(() {
@@ -105,6 +128,19 @@ class _MapPageState extends State<MapPage> {
                                         ),
                                       );
                                     }).toList(),
+                                    // Add the red dot
+                                    Positioned(
+                                      left: mapCoordinate(redDotX, -0.2, 1.7, 0.0, floorplanWidth) - dotSize / 2,
+                                      top: mapCoordinate(redDotY, -0.2, 1.2, 0.0, floorplanHeight) - dotSize / 2,
+                                      child: Container(
+                                        width: dotSize,
+                                        height: dotSize,
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),

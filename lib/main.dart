@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => LoginPage(),
         '/admin_homepage': (context) => AdminHomepage(),
-        '/map': (context) => map_page.MapPage(),
+        '/map': (context) => map_page.MapPage(coordinates: '(0.0, 0.0)'), // Provide default coordinates
         '/customersupport': (context) => customer_support.CustomerSupportPage(),
         '/stock_inventory': (context) => stock_inventory.StockInventoryPage(),
         '/customer_details': (context) => customer_detail.CustomerDetailsPage(),
