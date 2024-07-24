@@ -141,6 +141,7 @@ flutter:
     - assets/products/haircare/amino.jpg
     - assets/products/haircare/ryodamage.jpg
     - assets/logo.png
+    - assets/map/floorplan.jpg
 
 
   # To add assets to your application, add an assets section, like this:
