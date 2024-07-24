@@ -10,6 +10,8 @@ class TopItemsScreen extends StatefulWidget {
 class _TopItemsScreenState extends State<TopItemsScreen> {
   List<Map<String, dynamic>> topItems = [];
   Map<String, int> topCategories = {};
+  int touchedIndexTopItems = -1;
+  int touchedIndexTopCategories = -1;
 
   @override
   void initState() {
@@ -25,7 +27,7 @@ class _TopItemsScreenState extends State<TopItemsScreen> {
       List<dynamic> items = purchaseDoc['items'];
       for (var item in items) {
         String itemName = item['title'];
-        int quantity = int.parse(item['quantity'] ?? '1');  // Ensure quantity is an integer
+        int quantity = int.tryParse(item['quantity']?.toString() ?? '1') ?? 1; // Ensure quantity is an integer
         itemQuantities[itemName] = (itemQuantities[itemName] ?? 0) + quantity;
       }
     }
@@ -60,8 +62,18 @@ class _TopItemsScreenState extends State<TopItemsScreen> {
       int quantity = entry.value['quantity'];
       return BarChartGroupData(
         x: index,
-        barRods: [BarChartRodData(toY: quantity.toDouble(), color: Colors.lightBlueAccent)],
-        showingTooltipIndicators: [0],
+        barRods: [
+          BarChartRodData(
+            toY: quantity.toDouble(),
+            color: Colors.lightBlueAccent,
+            width: 20,
+            borderRadius: BorderRadius.circular(4),
+            backDrawRodData: BackgroundBarChartRodData(
+              show: false,
+            ),
+          )
+        ],
+        showingTooltipIndicators: touchedIndexTopItems == index ? [0] : [],
       );
     }).toList();
   }
@@ -72,19 +84,89 @@ class _TopItemsScreenState extends State<TopItemsScreen> {
       int quantity = entry.value;
       return BarChartGroupData(
         x: topCategories.keys.toList().indexOf(category),
-        barRods: [BarChartRodData(toY: quantity.toDouble(), color: Colors.lightGreenAccent)],
-        showingTooltipIndicators: [0],
+        barRods: [
+          BarChartRodData(
+            toY: quantity.toDouble(),
+            color: Colors.lightGreenAccent,
+            width: 20,
+            borderRadius: BorderRadius.circular(4),
+            backDrawRodData: BackgroundBarChartRodData(
+              show: false,
+            ),
+          )
+        ],
+        showingTooltipIndicators: touchedIndexTopCategories == topCategories.keys.toList().indexOf(category) ? [0] : [],
       );
     }).toList();
   }
 
-  List<Widget> _buildCategoryTitles() {
-    return topCategories.entries.map((entry) {
-      return RotatedBox(
-        quarterTurns: 3,
-        child: Text(entry.key, style: TextStyle(fontSize: 10)),
-      );
-    }).toList();
+  Widget _buildBarChart({
+    required List<BarChartGroupData> barGroups,
+    required String title,
+    required Function(FlTouchEvent, BarTouchResponse?) touchCallback,
+  }) {
+    return SizedBox(
+      height: 300,
+      child: BarChart(
+        BarChartData(
+          barGroups: barGroups,
+          barTouchData: BarTouchData(
+            touchTooltipData: BarTouchTooltipData(
+              tooltipPadding: const EdgeInsets.all(8),
+              tooltipRoundedRadius: 8,
+              getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                return BarTooltipItem(
+                  rod.toY.toString(),
+                  TextStyle(color: Colors.white),
+                );
+              },
+            ),
+            touchCallback: touchCallback,
+          ),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 28,
+                getTitlesWidget: (value, meta) {
+                  return Text('');
+                },
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 100,
+                getTitlesWidget: (value, meta) {
+                  if (value.toInt() < barGroups.length) {
+                    String titleName;
+                    if (title == 'Top 10 Products') {
+                      titleName = topItems[value.toInt()]['name'];
+                    } else {
+                      titleName = topCategories.keys.toList()[value.toInt()];
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: RotatedBox(
+                        quarterTurns: -1,
+                        child: Text(
+                          titleName.length > 10
+                              ? '${titleName.substring(0, 10)}...'
+                              : titleName,
+                          style: TextStyle(fontSize: 10),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    );
+                  }
+                  return Text('');
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -100,83 +182,33 @@ class _TopItemsScreenState extends State<TopItemsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Top 10 Products', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(
-                height: 300,
-                child: BarChart(
-                  BarChartData(
-                    barGroups: _buildTopItemsChart(),
-                    titlesData: FlTitlesData(
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 28,
-                          getTitlesWidget: (value, meta) {
-                            return Text('${value.toInt()}');
-                          },
-                        ),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 100,
-                          getTitlesWidget: (value, meta) {
-                            if (value.toInt() < topItems.length) {
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  topItems[value.toInt()]['name'],
-                                  style: TextStyle(fontSize: 10),
-                                  textAlign: TextAlign.center,
-                                ),
-                              );
-                            }
-                            return Text('');
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+              _buildBarChart(
+                barGroups: _buildTopItemsChart(),
+                title: 'Top 10 Products',
+                touchCallback: (FlTouchEvent event, BarTouchResponse? barTouchResponse) {
+                  setState(() {
+                    if (event.isInterestedForInteractions && barTouchResponse != null && barTouchResponse.spot != null) {
+                      touchedIndexTopItems = barTouchResponse.spot!.touchedBarGroupIndex;
+                    } else {
+                      touchedIndexTopItems = -1;
+                    }
+                  });
+                },
               ),
               SizedBox(height: 20),
               Text('Top Categories', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(
-                height: 300,
-                child: BarChart(
-                  BarChartData(
-                    barGroups: _buildTopCategoriesChart(),
-                    titlesData: FlTitlesData(
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 28,
-                          getTitlesWidget: (value, meta) {
-                            return Text('${value.toInt()}');
-                          },
-                        ),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 100,
-                          getTitlesWidget: (value, meta) {
-                            if (value.toInt() < topCategories.length) {
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  topCategories.keys.toList()[value.toInt()],
-                                  style: TextStyle(fontSize: 10),
-                                  textAlign: TextAlign.center,
-                                ),
-                              );
-                            }
-                            return Text('');
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+              _buildBarChart(
+                barGroups: _buildTopCategoriesChart(),
+                title: 'Top Categories',
+                touchCallback: (FlTouchEvent event, BarTouchResponse? barTouchResponse) {
+                  setState(() {
+                    if (event.isInterestedForInteractions && barTouchResponse != null && barTouchResponse.spot != null) {
+                      touchedIndexTopCategories = barTouchResponse.spot!.touchedBarGroupIndex;
+                    } else {
+                      touchedIndexTopCategories = -1;
+                    }
+                  });
+                },
               ),
             ],
           ),

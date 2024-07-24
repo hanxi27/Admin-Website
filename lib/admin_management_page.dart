@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dashboard/dashboard_screen.dart'; // Ensure this import is correct
+import 'dashboard/dashboard_screen.dart'; // Ensure this import exists
 
 class AdminManagementPage extends StatelessWidget {
   @override
@@ -7,6 +7,7 @@ class AdminManagementPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Admin Management'),
+        automaticallyImplyLeading: false, // This line removes the back button
       ),
       body: DashboardScreen(), // Display the DashboardScreen
     );
