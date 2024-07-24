@@ -46,8 +46,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     int maleCount = 0;
     int femaleCount = 0;
     for (var doc in querySnapshot.docs) {
-      if (doc['gender'] == 'Male') maleCount++;
-      if (doc['gender'] == 'Female') femaleCount++;
+      String gender = doc['gender'].toString().toLowerCase();
+      if (gender == 'male') maleCount++;
+      if (gender == 'female') femaleCount++;
     }
     setState(() {
       genderDistribution['Male'] = maleCount;
