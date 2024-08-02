@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:badges/badges.dart' as badges;
 import 'package:my_new_project/Map/map_page.dart'; // Import the MapPage
 
 class CustomerSupportPage extends StatefulWidget {
@@ -14,7 +15,7 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
   String? selectedUsername;
   final TextEditingController _messageController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  Map<String, int> unreadMessages = {};
+  Map<String, bool> unreadMessages = {}; // Changed to boolean to indicate if there are any unread messages
   Set<String> displayedMessages = {};
 
   Future<void> _signInAdmin() async {
@@ -50,15 +51,14 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
             .orderBy('timestamp', descending: true)
             .snapshots()
             .listen((messageSnapshot) {
-          int newMessageCount = messageSnapshot.docs
-              .where((message) => message['sender'] != 'Admin' && !displayedMessages.contains(message.id))
-              .length;
+          bool hasUnread = messageSnapshot.docs.any((message) => message['sender'] != 'Admin' && !displayedMessages.contains(message.id));
           setState(() {
-            unreadMessages[requestId] = newMessageCount;
+            unreadMessages[requestId] = hasUnread;
           });
 
-          if (newMessageCount > 0) {
-            _showNotification("New messages", doc['username']);
+          if (hasUnread && !displayedMessages.contains(messageSnapshot.docs.first.id)) {
+            displayedMessages.add(messageSnapshot.docs.first.id);
+            _showNotification("New message", doc['username']);
           }
         });
       }
@@ -152,24 +152,26 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                         itemCount: helpRequests.length,
                         itemBuilder: (context, index) {
                           var request = helpRequests[index];
-                          int unreadCount = unreadMessages[request.id] ?? 0;
+                          bool hasUnread = unreadMessages[request.id] ?? false;
                           return ListTile(
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                             title: Text(
                               request['username'],
                               style: TextStyle(
-                                fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.normal,
+                                fontWeight: hasUnread ? FontWeight.bold : FontWeight.normal,
                               ),
                             ),
-                            trailing: unreadCount > 0
-                                ? Container(
-                                    padding: EdgeInsets.all(8.0),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      borderRadius: BorderRadius.circular(12.0),
+                            trailing: hasUnread
+                                ? badges.Badge(
+                                    badgeContent: Icon(
+                                      Icons.mark_email_unread,
+                                      color: Colors.white,
+                                      size: 16.0,
                                     ),
-                                    child: Text(
-                                      '$unreadCount',
-                                      style: TextStyle(color: Colors.white),
+                                    badgeStyle: badges.BadgeStyle(
+                                      shape: badges.BadgeShape.circle,
+                                      badgeColor: Colors.red,
+                                      padding: EdgeInsets.all(8),
                                     ),
                                   )
                                 : null,
@@ -177,7 +179,7 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                               setState(() {
                                 selectedRequestId = request.id;
                                 selectedUsername = request['username'];
-                                unreadMessages[request.id] = 0; // Clear unread count
+                                unreadMessages[request.id] = false; // Clear unread notification
                               });
                             },
                           );
@@ -235,9 +237,6 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                               final data = message.data() as Map<String, dynamic>;
                               if (!displayedMessages.contains(message.id)) {
                                 displayedMessages.add(message.id);
-                                if (data['sender'] != 'Admin') {
-                                  _showNotification(data['text'], data['sender']);
-                                }
                               }
                             }
 
