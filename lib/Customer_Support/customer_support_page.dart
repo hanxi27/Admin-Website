@@ -14,6 +14,8 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
   String? selectedUsername;
   final TextEditingController _messageController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  Map<String, int> unreadMessages = {};
+  Set<String> displayedMessages = {};
 
   Future<void> _signInAdmin() async {
     try {
@@ -34,6 +36,33 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
   void initState() {
     super.initState();
     _signInAdmin(); // Automatically sign in the admin on app start
+    _listenForMessages();
+  }
+
+  void _listenForMessages() {
+    FirebaseFirestore.instance.collection('help_requests').snapshots().listen((snapshot) {
+      for (var doc in snapshot.docs) {
+        String requestId = doc.id;
+        FirebaseFirestore.instance
+            .collection('help_requests')
+            .doc(requestId)
+            .collection('messages')
+            .orderBy('timestamp', descending: true)
+            .snapshots()
+            .listen((messageSnapshot) {
+          int newMessageCount = messageSnapshot.docs
+              .where((message) => message['sender'] != 'Admin' && !displayedMessages.contains(message.id))
+              .length;
+          setState(() {
+            unreadMessages[requestId] = newMessageCount;
+          });
+
+          if (newMessageCount > 0) {
+            _showNotification("New messages", doc['username']);
+          }
+        });
+      }
+    });
   }
 
   void _navigateToMap(BuildContext context, String coordinates) {
@@ -44,6 +73,37 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
         ),
       ),
     );
+  }
+
+  void _showNotification(String message, String sender) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final overlay = Overlay.of(context);
+      final overlayEntry = OverlayEntry(
+        builder: (context) => Positioned(
+          top: 50.0,
+          right: 10.0,
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              padding: EdgeInsets.all(10.0),
+              decoration: BoxDecoration(
+                color: Colors.redAccent,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Text(
+                '$sender: $message',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      overlay?.insert(overlayEntry);
+      Future.delayed(Duration(seconds: 3), () {
+        overlayEntry.remove();
+      });
+    });
   }
 
   @override
@@ -92,12 +152,32 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                         itemCount: helpRequests.length,
                         itemBuilder: (context, index) {
                           var request = helpRequests[index];
+                          int unreadCount = unreadMessages[request.id] ?? 0;
                           return ListTile(
-                            title: Text(request['username']),
+                            title: Text(
+                              request['username'],
+                              style: TextStyle(
+                                fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.normal,
+                              ),
+                            ),
+                            trailing: unreadCount > 0
+                                ? Container(
+                                    padding: EdgeInsets.all(8.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(12.0),
+                                    ),
+                                    child: Text(
+                                      '$unreadCount',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  )
+                                : null,
                             onTap: () {
                               setState(() {
                                 selectedRequestId = request.id;
                                 selectedUsername = request['username'];
+                                unreadMessages[request.id] = 0; // Clear unread count
                               });
                             },
                           );
@@ -149,7 +229,18 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                               return Center(child: Text('No messages found'));
                             }
+
                             var messages = snapshot.data!.docs;
+                            for (var message in messages) {
+                              final data = message.data() as Map<String, dynamic>;
+                              if (!displayedMessages.contains(message.id)) {
+                                displayedMessages.add(message.id);
+                                if (data['sender'] != 'Admin') {
+                                  _showNotification(data['text'], data['sender']);
+                                }
+                              }
+                            }
+
                             return ListView.builder(
                               reverse: true,
                               itemCount: messages.length,
