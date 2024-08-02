@@ -10,6 +10,13 @@ class TopCategoriesWidget extends StatefulWidget {
 class _TopCategoriesWidgetState extends State<TopCategoriesWidget> {
   List<Map<String, dynamic>> topCategories = [];
   int touchedIndexTopCategories = -1;
+  final List<Color> categoryColors = [
+    Colors.red,
+    Colors.orange,
+    Colors.blue,
+    Colors.purple,
+    Colors.green,
+  ];
 
   @override
   void initState() {
@@ -31,25 +38,18 @@ class _TopCategoriesWidgetState extends State<TopCategoriesWidget> {
         .map((entry) => {'name': entry.key, 'quantity': entry.value})
         .toList()
       ..sort((a, b) => (b['quantity'] as int).compareTo(a['quantity'] as int));
-    
-    int otherQuantity = 0;
-    if (sortedCategories.length > 5) {
-      otherQuantity = sortedCategories.sublist(5).fold(0, (sum, item) => sum + item['quantity'] as int);
-      sortedCategories = sortedCategories.take(5).toList();
-      sortedCategories.add({'name': 'Others', 'quantity': otherQuantity});
-    }
-    
     setState(() {
-      topCategories = sortedCategories;
+      topCategories = sortedCategories.take(5).toList();
     });
   }
 
   List<PieChartSectionData> _buildTopCategoriesChart() {
-    int total = topCategories.fold(0, (sum, item) => sum + (item['quantity'] as int));
-    return topCategories.map((entry) {
-      double percentage = (entry['quantity'] / total) * 100;
+    int total = topCategories.fold(0, (sum, item) => sum + item['quantity'] as int);
+    return topCategories.asMap().entries.map((entry) {
+      int index = entry.key;
+      double percentage = (entry.value['quantity'] / total) * 100;
       return PieChartSectionData(
-        color: _getColor(entry['name']),
+        color: categoryColors[index],
         value: percentage,
         title: '${percentage.toStringAsFixed(1)}%',
         radius: 100,
@@ -58,41 +58,11 @@ class _TopCategoriesWidgetState extends State<TopCategoriesWidget> {
     }).toList();
   }
 
-  Color _getColor(String category) {
-    switch (category) {
-      case 'Hair Care':
-        return Colors.blue;
-      case 'Nutrition':
-        return Color.fromARGB(255, 67, 55, 67);
-      case 'Make Up':
-        return Colors.green;
-      case 'Groceries':
-        return Colors.yellow;
-      case 'Pets Care':
-        return Colors.orange;
-      case 'Supplement':
-        return Color.fromARGB(255, 205, 70, 209);
-      case 'Tonic':
-        return Color.fromARGB(255, 16, 180, 202);
-      case 'Foot Treatment':
-        return Color.fromARGB(255, 176, 39, 55);
-      case 'Traditional Medicine':
-        return Color.fromARGB(255, 43, 205, 28);
-      case 'Coffee':
-        return Color.fromARGB(255, 176, 128, 39);
-      case 'Dairy Product':
-        return Color.fromARGB(255, 39, 41, 176);
-      case 'Others':
-        return Colors.grey;
-      default:
-        return Colors.grey;
-    }
-  }
-
   Widget _buildLegend() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: topCategories.map((entry) {
+      children: topCategories.asMap().entries.map((entry) {
+        int index = entry.key;
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 4.0),
           child: Row(
@@ -100,10 +70,10 @@ class _TopCategoriesWidgetState extends State<TopCategoriesWidget> {
               Container(
                 width: 16,
                 height: 16,
-                color: _getColor(entry['name']),
+                color: categoryColors[index],
               ),
               SizedBox(width: 8),
-              Text(entry['name']),
+              Text(entry.value['name']),
             ],
           ),
         );

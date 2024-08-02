@@ -4,6 +4,7 @@ import 'gender.dart';
 import 'age.dart';
 import 'items.dart';
 import 'category.dart';
+import 'revenue.dart'; // Import the RevenueScreen
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -48,9 +49,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'Total Revenue: RM ${totalRevenue.toStringAsFixed(2)}',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Total Revenue: RM ${totalRevenue.toStringAsFixed(2)}',
+                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 40),
+                          ),
+                          SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => RevenueScreen()),
+                              );
+                            },
+                            child: Text('View Revenue Details'),
+                          ),
+                        ],
                       ),
                     ),
                     GridView.count(

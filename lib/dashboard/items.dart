@@ -89,7 +89,7 @@ class _TopItemsWidgetState extends State<TopItemsWidget> {
                 showTitles: true,
                 reservedSize: 28,
                 getTitlesWidget: (value, meta) {
-                  return Text('');
+                  return Text(value.toInt().toString());
                 },
               ),
             ),
@@ -118,6 +118,12 @@ class _TopItemsWidgetState extends State<TopItemsWidget> {
                 },
               ),
             ),
+            topTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false), // Disable top titles
+            ),
+            rightTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false), // Optionally disable right titles
+            ),
           ),
         ),
       ),
@@ -145,6 +151,7 @@ class _TopItemsWidgetState extends State<TopItemsWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Top 10 Products', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          SizedBox(height: 20), // Added space
           _buildBarChart(
             barGroups: _buildTopItemsChart(),
             title: 'Top 10 Products',
