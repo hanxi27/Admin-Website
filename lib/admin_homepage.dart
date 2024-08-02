@@ -7,7 +7,6 @@ import 'Customer_Detail/customer_details_page.dart' as customer_detail;
 import 'admin_management_page.dart';
 import 'dashboard/dashboard_screen.dart'; // Import the dashboard screen
 import 'dashboard/revenue.dart'; // Import the revenue screen
-import 'dashboard/top_items.dart'; // Import the top items screen
 
 class AdminHomepage extends StatelessWidget {
   @override
@@ -24,7 +23,6 @@ class AdminHomepage extends StatelessWidget {
               Tab(icon: Icon(Icons.inventory), text: 'Stock Inventory'),
               Tab(icon: Icon(Icons.person), text: 'Customer Details'),
               Tab(icon: Icon(Icons.admin_panel_settings), text: 'Admin Management'),
-              Tab(icon: Icon(Icons.list), text: 'Top Items'), // New tab for Top Items
             ],
           ),
         ),
@@ -35,7 +33,6 @@ class AdminHomepage extends StatelessWidget {
             stock_inventory.StockInventoryPage(),
             customer_detail.CustomerDetailsPage(),
             AdminManagementPage(),
-            TopItemsScreen(), // New Top Items Page
           ],
         ),
       ),

@@ -13,7 +13,6 @@ import 'login_page.dart';
 import 'firebase_options.dart'; // Ensure this file exists
 import 'dashboard/dashboard_screen.dart'; // Import the dashboard screen
 import 'dashboard/revenue.dart'; // Import the revenue screen
-import 'dashboard/top_items.dart'; // Import the top items screen
 import 'Customer_Support/message_provider.dart'; // Import the message provider
 
 Future<void> main() async {
@@ -58,7 +57,6 @@ class MyApp extends StatelessWidget {
           '/customer_details': (context) => customer_detail.CustomerDetailsPage(),
           '/dashboard': (context) => DashboardScreen(), // Add the dashboard route
           '/revenue': (context) => RevenueScreen(), // Add the revenue route
-          '/top_items': (context) => TopItemsScreen(), // Add the top items route
         },
         navigatorObservers: <NavigatorObserver>[observer],
       ),

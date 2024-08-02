@@ -2,22 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-class TopItemsScreen extends StatefulWidget {
+class TopItemsWidget extends StatefulWidget {
   @override
-  _TopItemsScreenState createState() => _TopItemsScreenState();
+  _TopItemsWidgetState createState() => _TopItemsWidgetState();
 }
 
-class _TopItemsScreenState extends State<TopItemsScreen> {
+class _TopItemsWidgetState extends State<TopItemsWidget> {
   List<Map<String, dynamic>> topItems = [];
-  Map<String, int> topCategories = {};
   int touchedIndexTopItems = -1;
-  int touchedIndexTopCategories = -1;
 
   @override
   void initState() {
     super.initState();
     fetchTopItems();
-    fetchTopCategories();
   }
 
   Future<void> fetchTopItems() async {
@@ -27,7 +24,7 @@ class _TopItemsScreenState extends State<TopItemsScreen> {
       List<dynamic> items = purchaseDoc['items'];
       for (var item in items) {
         String itemName = item['title'];
-        int quantity = int.tryParse(item['quantity']?.toString() ?? '1') ?? 1; // Ensure quantity is an integer
+        int quantity = int.tryParse(item['quantity']?.toString() ?? '1') ?? 1;
         itemQuantities[itemName] = (itemQuantities[itemName] ?? 0) + quantity;
       }
     }
@@ -37,21 +34,6 @@ class _TopItemsScreenState extends State<TopItemsScreen> {
       ..sort((a, b) => (b['quantity'] as int).compareTo(a['quantity'] as int));
     setState(() {
       topItems = sortedItems.take(10).toList();
-    });
-  }
-
-  Future<void> fetchTopCategories() async {
-    Map<String, int> categoryQuantities = {};
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('purchase_history').get();
-    for (var purchaseDoc in querySnapshot.docs) {
-      List<dynamic> items = purchaseDoc['items'];
-      for (var item in items) {
-        String category = item['category'];
-        categoryQuantities[category] = (categoryQuantities[category] ?? 0) + 1;
-      }
-    }
-    setState(() {
-      topCategories = categoryQuantities;
     });
   }
 
@@ -74,28 +56,6 @@ class _TopItemsScreenState extends State<TopItemsScreen> {
           )
         ],
         showingTooltipIndicators: touchedIndexTopItems == index ? [0] : [],
-      );
-    }).toList();
-  }
-
-  List<BarChartGroupData> _buildTopCategoriesChart() {
-    return topCategories.entries.map((entry) {
-      String category = entry.key;
-      int quantity = entry.value;
-      return BarChartGroupData(
-        x: topCategories.keys.toList().indexOf(category),
-        barRods: [
-          BarChartRodData(
-            toY: quantity.toDouble(),
-            color: Colors.lightGreenAccent,
-            width: 20,
-            borderRadius: BorderRadius.circular(4),
-            backDrawRodData: BackgroundBarChartRodData(
-              show: false,
-            ),
-          )
-        ],
-        showingTooltipIndicators: touchedIndexTopCategories == topCategories.keys.toList().indexOf(category) ? [0] : [],
       );
     }).toList();
   }
@@ -139,12 +99,7 @@ class _TopItemsScreenState extends State<TopItemsScreen> {
                 reservedSize: 100,
                 getTitlesWidget: (value, meta) {
                   if (value.toInt() < barGroups.length) {
-                    String titleName;
-                    if (title == 'Top 10 Products') {
-                      titleName = topItems[value.toInt()]['name'];
-                    } else {
-                      titleName = topCategories.keys.toList()[value.toInt()];
-                    }
+                    String titleName = topItems[value.toInt()]['name'];
                     return Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: RotatedBox(
@@ -171,48 +126,39 @@ class _TopItemsScreenState extends State<TopItemsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Top Items'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Top 10 Products', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              _buildBarChart(
-                barGroups: _buildTopItemsChart(),
-                title: 'Top 10 Products',
-                touchCallback: (FlTouchEvent event, BarTouchResponse? barTouchResponse) {
-                  setState(() {
-                    if (event.isInterestedForInteractions && barTouchResponse != null && barTouchResponse.spot != null) {
-                      touchedIndexTopItems = barTouchResponse.spot!.touchedBarGroupIndex;
-                    } else {
-                      touchedIndexTopItems = -1;
-                    }
-                  });
-                },
-              ),
-              SizedBox(height: 20),
-              Text('Top Categories', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              _buildBarChart(
-                barGroups: _buildTopCategoriesChart(),
-                title: 'Top Categories',
-                touchCallback: (FlTouchEvent event, BarTouchResponse? barTouchResponse) {
-                  setState(() {
-                    if (event.isInterestedForInteractions && barTouchResponse != null && barTouchResponse.spot != null) {
-                      touchedIndexTopCategories = barTouchResponse.spot!.touchedBarGroupIndex;
-                    } else {
-                      touchedIndexTopCategories = -1;
-                    }
-                  });
-                },
-              ),
-            ],
+    return Container(
+      height: 300,
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: Offset(0, 3),
           ),
-        ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Top 10 Products', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          _buildBarChart(
+            barGroups: _buildTopItemsChart(),
+            title: 'Top 10 Products',
+            touchCallback: (FlTouchEvent event, BarTouchResponse? barTouchResponse) {
+              setState(() {
+                if (event.isInterestedForInteractions && barTouchResponse != null && barTouchResponse.spot != null) {
+                  touchedIndexTopItems = barTouchResponse.spot!.touchedBarGroupIndex;
+                } else {
+                  touchedIndexTopItems = -1;
+                }
+              });
+            },
+          ),
+        ],
       ),
     );
   }

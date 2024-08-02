@@ -5,10 +5,6 @@ class AdminManagementPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Admin Management'),
-        automaticallyImplyLeading: false, // This line removes the back button
-      ),
       body: DashboardScreen(), // Display the DashboardScreen
     );
   }
