@@ -98,6 +98,20 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
     });
   }
 
+  Future<void> _clearChat() async {
+    if (selectedRequestId != null) {
+      var messages = await FirebaseFirestore.instance
+          .collection('help_requests')
+          .doc(selectedRequestId)
+          .collection('messages')
+          .get();
+
+      for (var doc in messages.docs) {
+        await doc.reference.delete();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -308,6 +322,15 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                                     print('Failed to send message: $e');
                                   }
                                 }
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () async {
+                                await _clearChat();
+                                setState(() {
+                                  displayedMessages.clear();
+                                });
                               },
                             ),
                           ],
