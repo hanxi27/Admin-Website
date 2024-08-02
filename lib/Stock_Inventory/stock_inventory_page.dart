@@ -58,6 +58,13 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
     }
   }
 
+  void _deleteProduct(Map<String, String> product) {
+    setState(() {
+      allProductsNotifier.value.remove(product);
+    });
+    saveProducts(); // Save the updated products list after deletion
+  }
+
   void _toggleOptions(int index) {
     setState(() {
       selectedIndex = selectedIndex == index ? null : index;
@@ -258,6 +265,14 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
                                         minimumSize: Size(double.infinity, 30), // Set fixed height
                                       ),
                                       child: Text('Edit', style: TextStyle(color: Colors.white, fontSize: 12)),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () => _deleteProduct(product),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        minimumSize: Size(double.infinity, 30), // Set fixed height
+                                      ),
+                                      child: Text('Delete', style: TextStyle(color: Colors.white, fontSize: 12)),
                                     ),
                                   ],
                                 ),
