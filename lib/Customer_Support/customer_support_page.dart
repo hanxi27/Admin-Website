@@ -258,27 +258,28 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                                     ? '(${data['redDotCoordinates']['x']}, ${data['redDotCoordinates']['y']})'
                                     : '';
 
-                                return Align(
-                                  alignment: isAdmin ? Alignment.centerRight : Alignment.centerLeft,
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    margin: EdgeInsets.symmetric(vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: isAdmin ? Colors.blue[100] : Colors.grey[300],
-                                      borderRadius: BorderRadius.circular(8),
+                                return Row(
+                                  mainAxisAlignment:
+                                      isAdmin ? MainAxisAlignment.end : MainAxisAlignment.start,
+                                  children: [
+                                    Flexible(
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 8),
+                                        margin: EdgeInsets.symmetric(vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: isAdmin ? Colors.blue[100] : Colors.grey[300],
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Text(message['text']),
+                                      ),
                                     ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Flexible(child: Text(message['text'])),
-                                        if (!isAdmin && coordinates.isNotEmpty)
-                                          IconButton(
-                                            icon: Icon(Icons.location_on),
-                                            onPressed: () => _navigateToMap(context, coordinates),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
+                                    if (!isAdmin && coordinates.isNotEmpty)
+                                      IconButton(
+                                        icon: Icon(Icons.location_on),
+                                        onPressed: () => _navigateToMap(context, coordinates),
+                                      ),
+                                  ],
                                 );
                               },
                             );
