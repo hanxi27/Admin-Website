@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:get/get.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:my_new_project/Map/map_page.dart'; // Import the MapPage
 
@@ -15,7 +14,7 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
   String? selectedUsername;
   final TextEditingController _messageController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  Map<String, bool> unreadMessages = {}; // Changed to boolean to indicate if there are any unread messages
+  Map<String, bool> unreadMessages = {};
   Set<String> displayedMessages = {};
 
   Future<void> _signInAdmin() async {
@@ -36,7 +35,7 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
   @override
   void initState() {
     super.initState();
-    _signInAdmin(); // Automatically sign in the admin on app start
+    _signInAdmin();
     _listenForMessages();
   }
 
@@ -44,22 +43,9 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
     FirebaseFirestore.instance.collection('help_requests').snapshots().listen((snapshot) {
       for (var doc in snapshot.docs) {
         String requestId = doc.id;
-        FirebaseFirestore.instance
-            .collection('help_requests')
-            .doc(requestId)
-            .collection('messages')
-            .orderBy('timestamp', descending: true)
-            .snapshots()
-            .listen((messageSnapshot) {
-          bool hasUnread = messageSnapshot.docs.any((message) => message['sender'] != 'Admin' && !displayedMessages.contains(message.id));
-          setState(() {
-            unreadMessages[requestId] = hasUnread;
-          });
-
-          if (hasUnread && !displayedMessages.contains(messageSnapshot.docs.first.id)) {
-            displayedMessages.add(messageSnapshot.docs.first.id);
-            _showNotification("New message", doc['username']);
-          }
+        bool hasUnread = doc.data()['unread_count'] > 0;
+        setState(() {
+          unreadMessages[requestId] = hasUnread;
         });
       }
     });
@@ -103,6 +89,12 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
       Future.delayed(Duration(seconds: 3), () {
         overlayEntry.remove();
       });
+    });
+  }
+
+  Future<void> _clearUnreadCount(String requestId) async {
+    await FirebaseFirestore.instance.collection('help_requests').doc(requestId).update({
+      'unread_count': 0,
     });
   }
 
@@ -164,7 +156,7 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                             trailing: hasUnread
                                 ? badges.Badge(
                                     badgeContent: Icon(
-                                      Icons.mark_email_unread,
+                                      Icons.notifications,
                                       color: Colors.white,
                                       size: 16.0,
                                     ),
@@ -179,8 +171,9 @@ class _CustomerSupportPageState extends State<CustomerSupportPage> {
                               setState(() {
                                 selectedRequestId = request.id;
                                 selectedUsername = request['username'];
-                                unreadMessages[request.id] = false; // Clear unread notification
+                                unreadMessages[request.id] = false;
                               });
+                              _clearUnreadCount(request.id);
                             },
                           );
                         },
