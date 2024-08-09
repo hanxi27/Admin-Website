@@ -13,6 +13,8 @@ class _RevenueScreenState extends State<RevenueScreen> {
   Map<DateTime, double> dailyRevenue = {};
   Map<String, double> monthlyRevenue = {};
   double selectedValue = 0.0;
+  String selectedYear = '2024'; // Default to 2024
+  String selectedMonth = '07'; // Default to July
 
   @override
   void initState() {
@@ -48,14 +50,20 @@ class _RevenueScreenState extends State<RevenueScreen> {
   List<BarChartGroupData> _buildDailyRevenueChart() {
     List<BarChartGroupData> barGroups = [];
     dailyRevenue.forEach((date, revenue) {
-      barGroups.add(
-        BarChartGroupData(
-          x: date.day,
-          barRods: [
-            BarChartRodData(toY: revenue, color: Colors.lightBlueAccent),
-          ],
-        ),
-      );
+      if (DateFormat('yyyy-MM').format(date) == '$selectedYear-$selectedMonth') {
+        barGroups.add(
+          BarChartGroupData(
+            x: date.day,
+            barRods: [
+              BarChartRodData(
+                toY: revenue, 
+                color: Colors.lightBlueAccent,
+                width: 20, // Increased bar width
+              ),
+            ],
+          ),
+        );
+      }
     });
     return barGroups;
   }
@@ -63,17 +71,46 @@ class _RevenueScreenState extends State<RevenueScreen> {
   List<BarChartGroupData> _buildMonthlyRevenueChart() {
     List<BarChartGroupData> barGroups = [];
     monthlyRevenue.forEach((month, revenue) {
-      int monthIndex = int.parse(month.split('-')[1]);
-      barGroups.add(
-        BarChartGroupData(
-          x: monthIndex,
-          barRods: [
-            BarChartRodData(toY: revenue, color: Colors.lightGreenAccent),
-          ],
-        ),
-      );
+      if (month.startsWith(selectedYear)) {
+        int monthIndex = int.parse(month.split('-')[1]);
+        barGroups.add(
+          BarChartGroupData(
+            x: monthIndex,
+            barRods: [
+              BarChartRodData(
+                toY: revenue, 
+                color: Colors.lightGreenAccent,
+                width: 20, // Increased bar width
+              ),
+            ],
+          ),
+        );
+      }
     });
     return barGroups;
+  }
+
+  List<Widget> _buildMonthButtons() {
+    List<String> months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return months.map((month) {
+      int monthIndex = months.indexOf(month) + 1;
+      String formattedMonth = monthIndex.toString().padLeft(2, '0');
+      return ElevatedButton(
+        onPressed: () {
+          setState(() {
+            selectedMonth = formattedMonth;
+          });
+        },
+        child: Text(month),
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(
+              selectedMonth == formattedMonth ? Colors.orange : Colors.grey),
+        ),
+      );
+    }).toList();
   }
 
   String _formatDate(int day) {
@@ -100,50 +137,105 @@ class _RevenueScreenState extends State<RevenueScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
               Text('Selected Revenue: RM ${selectedValue.toStringAsFixed(2)}', style: TextStyle(color: Colors.red, fontSize: 18)),
               SizedBox(height: 20),
-              Text('Daily Revenue', style: TextStyle(fontSize: 18)),
-              SizedBox(
-                height: 200,
-                child: BarChart(
-                  BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    barGroups: _buildDailyRevenueChart(),
-                    titlesData: FlTitlesData(
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, meta) {
-                            if (value == 0) return Text('0');
-                            if (value == 500) return Text('500');
-                            if (value == 1000) return Text('1K');
-                            return Container();
-                          },
-                        ),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, meta) {
-                            return Text(_formatDate(value.toInt()));
-                          },
-                        ),
-                      ),
-                    ),
-                    barTouchData: BarTouchData(
-                      touchCallback: (FlTouchEvent event, barTouchResponse) {
-                        if (event is FlTapUpEvent && barTouchResponse?.spot != null) {
-                          setState(() {
-                            selectedValue = barTouchResponse!.spot!.touchedRodData.toY;
-                          });
-                        }
-                      },
+              Text('Selected Year:', style: TextStyle(fontSize: 18)),
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        selectedYear = '2024';
+                      });
+                    },
+                    child: Text('2024',),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                          selectedYear == '2024' ? Colors.orange : Colors.grey),
                     ),
                   ),
+                  // Add more buttons for other years as needed
+                ],
+              ),
+              SizedBox(height: 20),
+              Text('Select Month:', style: TextStyle(fontSize: 18)),
+              SizedBox(
+                height: 35,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: _buildMonthButtons(),
                 ),
+              ),
+              SizedBox(height: 20),
+              Text('Daily Revenue', style: TextStyle(fontSize: 18)),
+              Column(
+                children: [
+                  SizedBox(
+                    height: 450,
+                    child: BarChart(
+                      BarChartData(
+                        alignment: BarChartAlignment.spaceAround,
+                        barGroups: _buildDailyRevenueChart(),
+                        titlesData: FlTitlesData(
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 40,
+                              getTitlesWidget: (value, meta) {
+                                if (value == 0) return Text('0');
+                                if (value == 500) return Text('500');
+                                if (value == 1000) return Text('1K');
+                                return Container();
+                              },
+                            ),
+                          ),
+                          rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 40,
+                              getTitlesWidget: (value, meta) {
+                                return Text(_formatDate(value.toInt()));
+                              },
+                            ),
+                          ),
+                        ),
+                        barTouchData: BarTouchData(
+                          touchTooltipData: BarTouchTooltipData(
+                            tooltipPadding: const EdgeInsets.all(8),
+                            tooltipRoundedRadius: 8,
+                            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                              return BarTooltipItem(
+                                rod.toY.toStringAsFixed(2),
+                                TextStyle(color: Colors.white),
+                              );
+                            },
+                          ),
+                          touchCallback: (FlTouchEvent event, barTouchResponse) {
+                            if (event is FlTapUpEvent && barTouchResponse?.spot != null) {
+                              setState(() {
+                                selectedValue = barTouchResponse!.spot!.touchedRodData.toY;
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 2), // Reduce space between chart and label
+                  Text(
+                    'Day',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold), // Make the text smaller
+                  ),
+                ],
               ),
               SizedBox(height: 20),
               Text('Monthly Revenue', style: TextStyle(fontSize: 18)),
               SizedBox(
-                height: 200,
+                height: 500,
                 child: BarChart(
                   BarChartData(
                     alignment: BarChartAlignment.spaceAround,
@@ -152,19 +244,28 @@ class _RevenueScreenState extends State<RevenueScreen> {
                       leftTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
+                          reservedSize: 40,
                           getTitlesWidget: (value, meta) {
                             if (value == 0) return Text('0');
                             if (value == 500) return Text('500');
                             if (value == 1000) return Text('1K');
                             if (value == 1500) return Text('1.5K');
                             if (value == 2000) return Text('2K');
+                            if (value == 2300) return Text('2.3K');
                             return Container();
                           },
                         ),
                       ),
+                      rightTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      topTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                       bottomTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
+                          reservedSize: 40,
                           getTitlesWidget: (value, meta) {
                             return Text(_formatMonth(value.toInt()));
                           },
@@ -172,6 +273,16 @@ class _RevenueScreenState extends State<RevenueScreen> {
                       ),
                     ),
                     barTouchData: BarTouchData(
+                      touchTooltipData: BarTouchTooltipData(
+                        tooltipPadding: const EdgeInsets.all(8),
+                        tooltipRoundedRadius: 8,
+                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                          return BarTooltipItem(
+                            rod.toY.toStringAsFixed(2),
+                            TextStyle(color: Colors.white),
+                          );
+                        },
+                      ),
                       touchCallback: (FlTouchEvent event, barTouchResponse) {
                         if (event is FlTapUpEvent && barTouchResponse?.spot != null) {
                           setState(() {
