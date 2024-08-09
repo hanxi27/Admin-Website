@@ -75,8 +75,10 @@ class _TopItemsWidgetState extends State<TopItemsWidget> {
               tooltipPadding: const EdgeInsets.all(8),
               tooltipRoundedRadius: 8,
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                String productName = topItems[group.x.toInt()]['name'];
+                int quantity = topItems[group.x.toInt()]['quantity'];
                 return BarTooltipItem(
-                  rod.toY.toString(),
+                  '$productName\n($quantity units)', // Full product name and quantity
                   TextStyle(color: Colors.white),
                 );
               },
