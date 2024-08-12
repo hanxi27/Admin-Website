@@ -102,7 +102,21 @@ class _AgeDistributionWidgetState extends State<AgeDistributionWidget> {
                   barGroups: _createAgeData(),
                   titlesData: FlTitlesData(
                     leftTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: true),
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (double value, TitleMeta meta) {
+                          if (value % 1 == 0) { // Show only integer values
+                            return SideTitleWidget(
+                              axisSide: meta.axisSide,
+                              space: 8.0,
+                              child: Text(value.toInt().toString()),
+                            );
+                          } else {
+                            return Container();
+                          }
+                        },
+                        reservedSize: 40,
+                      ),
                     ),
                     rightTitles: AxisTitles(
                       sideTitles: SideTitles(showTitles: false),
