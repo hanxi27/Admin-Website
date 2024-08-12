@@ -137,10 +137,10 @@ class UserDetailPage extends StatelessWidget {
                   SizedBox(height: 16),
                   Text('Purchase History:', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   PurchaseHistory(userId: userId), // Use the PurchaseHistory widget
-                  SizedBox(height: 16),
+                  SizedBox(height: 56),
                   Text('Top 5 Products:', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   SizedBox(
-                    height: 200,
+                    height: 400,
                     child: TopProductsPieChart(userId: userId), // Include the pie chart widget
                   ),
                 ],
