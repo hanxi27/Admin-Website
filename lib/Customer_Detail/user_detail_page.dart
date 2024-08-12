@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart'; // For formatting the timestamp
-import 'purchase_history.dart'; // Import the purchase_history.dart file
+import 'package:intl/intl.dart';
+import 'purchase_history.dart';
+import 'top_products_pie_chart.dart';  // Import the pie chart widget
 
 class UserDetailPage extends StatelessWidget {
   final String userId;
@@ -136,6 +137,12 @@ class UserDetailPage extends StatelessWidget {
                   SizedBox(height: 16),
                   Text('Purchase History:', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   PurchaseHistory(userId: userId), // Use the PurchaseHistory widget
+                  SizedBox(height: 16),
+                  Text('Top 5 Products:', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  SizedBox(
+                    height: 200,
+                    child: TopProductsPieChart(userId: userId), // Include the pie chart widget
+                  ),
                 ],
               ),
             ),
