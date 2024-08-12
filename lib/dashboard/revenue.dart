@@ -14,7 +14,7 @@ class _RevenueScreenState extends State<RevenueScreen> {
   Map<String, double> monthlyRevenue = {};
   double selectedValue = 0.0;
   String selectedYear = '2024'; // Default to 2024
-  String selectedMonth = '07'; // Default to July
+  String selectedMonth = '08'; // Default to August
 
   @override
   void initState() {
@@ -56,7 +56,7 @@ class _RevenueScreenState extends State<RevenueScreen> {
             x: date.day,
             barRods: [
               BarChartRodData(
-                toY: revenue, 
+                toY: revenue,
                 color: Colors.lightBlueAccent,
                 width: 20, // Increased bar width
               ),
@@ -70,23 +70,39 @@ class _RevenueScreenState extends State<RevenueScreen> {
 
   List<BarChartGroupData> _buildMonthlyRevenueChart() {
     List<BarChartGroupData> barGroups = [];
+
+    // Create a map to store revenue for each month
+    Map<int, double> revenuePerMonth = {};
+
+    // Initialize each month with 0 revenue
+    for (int i = 1; i <= 12; i++) {
+      revenuePerMonth[i] = 0.0;
+    }
+
+    // Populate the map with actual monthly revenue
     monthlyRevenue.forEach((month, revenue) {
       if (month.startsWith(selectedYear)) {
         int monthIndex = int.parse(month.split('-')[1]);
-        barGroups.add(
-          BarChartGroupData(
-            x: monthIndex,
-            barRods: [
-              BarChartRodData(
-                toY: revenue, 
-                color: Colors.lightGreenAccent,
-                width: 20, // Increased bar width
-              ),
-            ],
-          ),
-        );
+        revenuePerMonth[monthIndex] = revenue;
       }
     });
+
+    // Create BarChartGroupData in the correct order
+    for (int i = 1; i <= 12; i++) {
+      barGroups.add(
+        BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              toY: revenuePerMonth[i] ?? 0.0,
+              color: Colors.lightGreenAccent,
+              width: 20, // Increased bar width
+            ),
+          ],
+        ),
+      );
+    }
+
     return barGroups;
   }
 
