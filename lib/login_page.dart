@@ -11,6 +11,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _isPasswordVisible = false;
 
   final String _validEmail = 'innoadmin@example.com';
   final String _validPassword = 'adminPassword';
@@ -72,8 +73,20 @@ class _LoginPageState extends State<LoginPage> {
               ),
               TextFormField(
                 controller: _passwordController,
-                decoration: InputDecoration(labelText: 'Password'),
-                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  ),
+                ),
+                obscureText: !_isPasswordVisible,
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Please enter your password';
