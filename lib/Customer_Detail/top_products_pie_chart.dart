@@ -31,11 +31,14 @@ class TopProductsPieChart extends StatelessWidget {
 
         // Count occurrences of each product
         Map<String, int> productCount = {};
+        int totalCount = 0;
         for (var purchase in purchaseHistory) {
           var items = List<Map<String, dynamic>>.from(purchase['items']);
           for (var item in items) {
             var title = item['title'] ?? 'Unknown';
-            productCount[title] = (productCount[title] ?? 0) + (item['quantity'] as int);
+            int quantity = item['quantity'] as int;
+            productCount[title] = (productCount[title] ?? 0) + quantity;
+            totalCount += quantity;
           }
         }
 
@@ -57,11 +60,18 @@ class TopProductsPieChart extends StatelessWidget {
         List<PieChartSectionData> pieChartSections = topProducts.asMap().entries.map((entry) {
           int index = entry.key;
           var product = entry.value;
+          double percentage = (product.value / totalCount) * 100;
+
           return PieChartSectionData(
-            value: product.value.toDouble(), // Use double type for value
-            title: '', // Remove the title so that it's not displayed on the chart
-            radius: 50.0, // Ensure radius is a double
-            color: colors[index], // Set color
+            value: product.value.toDouble(),
+            title: '${percentage.toStringAsFixed(1)}%', // Display the percentage
+            radius: 50.0,
+            color: colors[index],
+            titleStyle: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           );
         }).toList();
 
@@ -100,7 +110,7 @@ class TopProductsPieChart extends StatelessWidget {
                         color: colors[index],
                       ),
                       SizedBox(width: 8),
-                      Text('${product.key} (${product.value})', style: TextStyle(fontSize: 14)), // Display product name and quantity
+                      Text('${product.key} (${product.value})', style: TextStyle(fontSize: 14)),
                     ],
                   );
                 }).toList(),
