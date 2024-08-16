@@ -28,7 +28,8 @@ class _EditProductState extends State<EditProduct> {
     _priceController = TextEditingController(text: widget.product['price']);
     _selectedCategory = widget.product['category']!;
     _selectedImage = widget.product['image']!;
-    _fetchUpdatedQuantity();
+    _quantityController = TextEditingController(); // Initialize the controller
+    _fetchUpdatedQuantity(); // Fetch the updated quantity from Firebase
   }
 
   Future<void> _fetchUpdatedQuantity() async {
@@ -37,12 +38,12 @@ class _EditProductState extends State<EditProduct> {
     DataSnapshot snapshot = event.snapshot;
     if (snapshot.exists) {
       setState(() {
-        _quantityController = TextEditingController(text: snapshot.child('quantity').value.toString());
+        _quantityController.text = snapshot.child('quantity').value.toString();
         isLoading = false; // Stop loading
       });
     } else {
       setState(() {
-        _quantityController = TextEditingController(text: widget.product['quantity']!);
+        _quantityController.text = '0';
         isLoading = false; // Stop loading
       });
     }

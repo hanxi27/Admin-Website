@@ -14,6 +14,7 @@ class ViewProduct extends StatefulWidget {
 
 class _ViewProductState extends State<ViewProduct> {
   int quantity = 0;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -28,10 +29,12 @@ class _ViewProductState extends State<ViewProduct> {
     if (snapshot.exists) {
       setState(() {
         quantity = int.parse(snapshot.child('quantity').value.toString());
+        isLoading = false; // Stop loading
       });
     } else {
       setState(() {
-        quantity = int.parse(widget.product['quantity']!);
+        quantity = 0;
+        isLoading = false; // Stop loading
       });
     }
   }
@@ -72,37 +75,39 @@ class _ViewProductState extends State<ViewProduct> {
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _getImageWidget(widget.product['image']!),
-            SizedBox(height: 16),
-            Text(
-              'Name: ${widget.product['title']}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Quantity: $quantity',
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Price: ${widget.product['price']}',
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Category: ${widget.product['category']}',
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Close'),
-            ),
-          ],
-        ),
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _getImageWidget(widget.product['image']!),
+                  SizedBox(height: 16),
+                  Text(
+                    'Name: ${widget.product['title']}',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Quantity: $quantity',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Price: ${widget.product['price']}',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Category: ${widget.product['category']}',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('Close'),
+                  ),
+                ],
+              ),
       ),
     );
   }
