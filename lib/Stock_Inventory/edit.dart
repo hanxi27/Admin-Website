@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'allproducts.dart';
@@ -18,15 +19,33 @@ class _EditProductState extends State<EditProduct> {
   late TextEditingController _priceController;
   late String _selectedCategory;
   late String _selectedImage;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.product['title']);
-    _quantityController = TextEditingController(text: widget.product['quantity']);
     _priceController = TextEditingController(text: widget.product['price']);
     _selectedCategory = widget.product['category']!;
     _selectedImage = widget.product['image']!;
+    _fetchUpdatedQuantity();
+  }
+
+  Future<void> _fetchUpdatedQuantity() async {
+    final databaseReference = FirebaseDatabase.instance.ref();
+    DatabaseEvent event = await databaseReference.child('products').child(widget.product['title']!).once();
+    DataSnapshot snapshot = event.snapshot;
+    if (snapshot.exists) {
+      setState(() {
+        _quantityController = TextEditingController(text: snapshot.child('quantity').value.toString());
+        isLoading = false; // Stop loading
+      });
+    } else {
+      setState(() {
+        _quantityController = TextEditingController(text: widget.product['quantity']!);
+        isLoading = false; // Stop loading
+      });
+    }
   }
 
   @override
@@ -76,7 +95,7 @@ class _EditProductState extends State<EditProduct> {
     });
 
     allProductsNotifier.value = List.from(allProductsNotifier.value); // Notify listeners
-
+    saveProducts(); // Save to Firebase
     Navigator.pop(context, true); // Return true to indicate product was updated
   }
 
@@ -88,7 +107,9 @@ class _EditProductState extends State<EditProduct> {
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
+        child: isLoading 
+            ? Center(child: CircularProgressIndicator()) // Show loading indicator while fetching data
+            : SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

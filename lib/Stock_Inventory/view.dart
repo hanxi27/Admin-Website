@@ -1,12 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 
-class ViewProduct extends StatelessWidget {
+class ViewProduct extends StatefulWidget {
   final Map<String, String> product;
-  final int quantity;
 
-  ViewProduct({required this.product, this.quantity = 10});
+  ViewProduct({required this.product});
+
+  @override
+  _ViewProductState createState() => _ViewProductState();
+}
+
+class _ViewProductState extends State<ViewProduct> {
+  int quantity = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUpdatedQuantity();
+  }
+
+  Future<void> _fetchUpdatedQuantity() async {
+    final databaseReference = FirebaseDatabase.instance.ref();
+    DatabaseEvent event = await databaseReference.child('products').child(widget.product['title']!).once();
+    DataSnapshot snapshot = event.snapshot;
+    if (snapshot.exists) {
+      setState(() {
+        quantity = int.parse(snapshot.child('quantity').value.toString());
+      });
+    } else {
+      setState(() {
+        quantity = int.parse(widget.product['quantity']!);
+      });
+    }
+  }
 
   bool _isBase64(String str) {
     try {
@@ -47,10 +75,10 @@ class ViewProduct extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _getImageWidget(product['image']!),
+            _getImageWidget(widget.product['image']!),
             SizedBox(height: 16),
             Text(
-              'Name: ${product['title']}',
+              'Name: ${widget.product['title']}',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 8),
@@ -60,12 +88,12 @@ class ViewProduct extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Text(
-              'Price: ${product['price']}',
+              'Price: ${widget.product['price']}',
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 8),
             Text(
-              'Category: ${product['category']}',
+              'Category: ${widget.product['category']}',
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 16),

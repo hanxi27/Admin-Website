@@ -37,13 +37,14 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
   }
 
   void _viewProduct(Map<String, String> product) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return ViewProduct(product: product, quantity: int.parse(product['quantity']!));
-      },
-    );
-  }
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return ViewProduct(product: product);
+    },
+  );
+}
+
 
   void _editProduct(Map<String, String> product) async {
     bool isUpdated = await showDialog(
