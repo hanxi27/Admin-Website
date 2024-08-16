@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'view.dart'; // Import the ViewProduct widget
 import 'edit.dart'; // Import the EditProduct widget
-import 'allproducts.dart'; // replace with actual path
+import 'allproducts.dart'; // Replace with actual path
 import 'add_product.dart'; // Import the AddProduct widget
 import 'dart:io'; // Import this for File
 import 'package:flutter/foundation.dart'; // For kIsWeb
@@ -202,6 +202,8 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
                     itemCount: filteredProducts.length,
                     itemBuilder: (context, index) {
                       final product = filteredProducts[index];
+                      bool isOutOfStock = int.parse(product['quantity']!) == 0;
+
                       return GestureDetector(
                         onTap: () => _toggleOptions(index),
                         child: Container(
@@ -214,9 +216,32 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-                                  child: _getImageWidget(product['image']!),
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                                      child: _getImageWidget(product['image']!),
+                                    ),
+                                    if (isOutOfStock)
+                                      Positioned(
+                                        top: 0,
+                                        left: 0,
+                                        right: 0,
+                                        child: Container(
+                                          color: Colors.black54,
+                                          padding: EdgeInsets.all(4.0),
+                                          child: Text(
+                                            'Out of Stock',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
                               Padding(

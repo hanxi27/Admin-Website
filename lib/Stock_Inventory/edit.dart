@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:my_new_project/Stock_Inventory/allproducts.dart';
+import 'allproducts.dart';
 
 class EditProduct extends StatefulWidget {
   final Map<String, String> product;
@@ -69,9 +69,10 @@ class _EditProductState extends State<EditProduct> {
     setState(() {
       widget.product['title'] = _nameController.text;
       widget.product['price'] = _priceController.text;
-      widget.product['quantity'] = _quantityController.text;
+      widget.product['quantity'] = int.parse(_quantityController.text) < 0
+          ? '0'
+          : _quantityController.text; // Ensure quantity is at least 0
       widget.product['category'] = _selectedCategory;
-      // No need to update image as it's assumed static
     });
 
     allProductsNotifier.value = List.from(allProductsNotifier.value); // Notify listeners
