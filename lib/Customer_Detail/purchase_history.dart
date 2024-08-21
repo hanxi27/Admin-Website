@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';  // Add this for date formatting
+import 'package:intl/intl.dart';  // For date formatting
 
 class PurchaseHistory extends StatelessWidget {
   final String userId;
@@ -13,6 +13,7 @@ class PurchaseHistory extends StatelessWidget {
       stream: FirebaseFirestore.instance
           .collection('purchase_history')
           .where('userId', isEqualTo: userId)
+          .orderBy('timestamp', descending: true) // Sort by timestamp in descending order
           .snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
