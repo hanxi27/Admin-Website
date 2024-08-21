@@ -5,7 +5,6 @@ import 'gender.dart';
 import 'age.dart';
 import 'items.dart';
 import 'category.dart';
-import 'revenue.dart'; // Import the RevenueScreen
 import 'customer_time_spent_screen.dart'; // Import the CustomerTimeSpentScreen
 import 'details_screen.dart';
 

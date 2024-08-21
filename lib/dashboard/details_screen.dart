@@ -1,7 +1,8 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'revenue.dart';
+import 'daily_revenue.dart';  // Import DailyRevenueChart
+import 'monthly_revenue.dart';  // Import MonthlyRevenueChart
 import 'visit.dart';  // Import VisitChart
 
 class DetailsScreen extends StatefulWidget {
@@ -135,10 +136,9 @@ class _DetailsScreenState extends State<DetailsScreen> {
                 ),
               ),
               SizedBox(height: 20),
-              RevenueChart(
+              // Daily Revenue Chart
+              DailyRevenueChart(
                 dailyRevenue: dailyRevenue,
-                monthlyRevenue: monthlyRevenue,
-                selectedValue: selectedValue,
                 selectedYear: selectedYear,
                 selectedMonth: selectedMonth,
                 onBarTouch: (value) {
@@ -147,11 +147,23 @@ class _DetailsScreenState extends State<DetailsScreen> {
                   });
                 },
               ),
-              SizedBox(height: 20),  // Add spacing between the charts
+              SizedBox(height: 20),  // Space between Daily Revenue and Daily Visits
+              // Daily Visits Chart
               VisitChart(
                 dailyVisits: dailyVisits,
                 selectedYear: selectedYear,
                 selectedMonth: selectedMonth,
+              ),
+              SizedBox(height: 20),  // Space between Daily Visits and Monthly Revenue
+              // Monthly Revenue Chart
+              MonthlyRevenueChart(
+                monthlyRevenue: monthlyRevenue,
+                selectedYear: selectedYear,
+                onBarTouch: (value) {
+                  setState(() {
+                    selectedValue = value;
+                  });
+                },
               ),
             ],
           ),

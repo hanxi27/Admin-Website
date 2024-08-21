@@ -6,7 +6,6 @@ import 'Stock_Inventory/stock_inventory_page.dart' as stock_inventory;
 import 'Customer_Detail/customer_details_page.dart' as customer_detail;
 import 'admin_management_page.dart';
 import 'dashboard/dashboard_screen.dart'; // Import the dashboard screen
-import 'dashboard/revenue.dart'; // Import the revenue screen
 
 class AdminHomepage extends StatelessWidget {
   @override

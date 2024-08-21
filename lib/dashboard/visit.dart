@@ -37,12 +37,21 @@ class VisitChart extends StatelessWidget {
     return barGroups;
   }
 
+  double _getMaxY() {
+    if (dailyVisits.isEmpty) {
+      return 1.0; // Default to 1 if there are no visits
+    }
+    return dailyVisits.values.reduce((a, b) => a > b ? a : b).toDouble();
+  }
+
   String _formatDate(int day) {
     return DateFormat('d').format(DateTime(0, 1, day));
   }
 
   @override
   Widget build(BuildContext context) {
+    double maxYValue = _getMaxY();
+
     return Column(
       children: [
         Text('Daily Visits', style: TextStyle(fontSize: 18)),
@@ -55,6 +64,7 @@ class VisitChart extends StatelessWidget {
                 child: BarChart(
                   BarChartData(
                     alignment: BarChartAlignment.spaceAround,
+                    maxY: maxYValue,  // Ensure the y-axis can display up to the max value
                     barGroups: _buildDailyVisitChart(),
                     titlesData: FlTitlesData(
                       leftTitles: AxisTitles(
@@ -62,7 +72,7 @@ class VisitChart extends StatelessWidget {
                           showTitles: true,
                           reservedSize: 60,
                           getTitlesWidget: (value, meta) {
-                            if (value % 1 == 0 && value > 0) {
+                            if (value % 1 == 0 && value >= 0) {
                               return Padding(
                                 padding: const EdgeInsets.only(right: 8.0),
                                 child: Text(value.toInt().toString()),

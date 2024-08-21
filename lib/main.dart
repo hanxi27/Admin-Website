@@ -12,7 +12,6 @@ import 'Customer_Detail/customer_details_page.dart' as customer_detail;
 import 'login_page.dart';
 import 'firebase_options.dart'; // Ensure this file exists
 import 'dashboard/dashboard_screen.dart'; // Import the dashboard screen
-import 'dashboard/revenue.dart'; // Import the revenue screen
 import 'Customer_Support/message_provider.dart'; // Import the message provider
 
 Future<void> main() async {
