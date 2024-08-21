@@ -49,14 +49,18 @@ class _RevenueScreenState extends State<RevenueScreen> {
 
   List<BarChartGroupData> _buildDailyRevenueChart() {
     List<BarChartGroupData> barGroups = [];
-    dailyRevenue.forEach((date, revenue) {
+
+    // Sort the dailyRevenue keys (dates) in ascending order
+    var sortedKeys = dailyRevenue.keys.toList()..sort();
+
+    for (var date in sortedKeys) {
       if (DateFormat('yyyy-MM').format(date) == '$selectedYear-$selectedMonth') {
         barGroups.add(
           BarChartGroupData(
             x: date.day,
             barRods: [
               BarChartRodData(
-                toY: revenue,
+                toY: dailyRevenue[date]!,
                 color: Colors.lightBlueAccent,
                 width: 20, // Increased bar width
               ),
@@ -64,7 +68,8 @@ class _RevenueScreenState extends State<RevenueScreen> {
           ),
         );
       }
-    });
+    }
+
     return barGroups;
   }
 
@@ -141,7 +146,7 @@ class _RevenueScreenState extends State<RevenueScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Revenue'),
+        title: Text('Monthly and Daily Details'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -186,57 +191,64 @@ class _RevenueScreenState extends State<RevenueScreen> {
                 children: [
                   SizedBox(
                     height: 450,
-                    child: BarChart(
-                      BarChartData(
-                        alignment: BarChartAlignment.spaceAround,
-                        barGroups: _buildDailyRevenueChart(),
-                        titlesData: FlTitlesData(
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 40,
-                              getTitlesWidget: (value, meta) {
-                                if (value == 0) return Text('0');
-                                if (value == 500) return Text('500');
-                                if (value == 1000) return Text('1K');
-                                return Container();
-                              },
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16.0, top: 16.0), // Add padding to the left and top to avoid overlap
+                      child: BarChart(
+                        BarChartData(
+                          alignment: BarChartAlignment.spaceAround,
+                          barGroups: _buildDailyRevenueChart(),
+                          titlesData: FlTitlesData(
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 60, // Increase reservedSize to prevent overlap
+                                getTitlesWidget: (value, meta) {
+                                  // Do not show the highest value on the y-axis
+                                  if (value == dailyRevenue.values.reduce((a, b) => a > b ? a : b)) {
+                                    return Container();
+                                  }
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 8.0), // Add space between label and chart
+                                    child: Text(value.toInt().toString()),
+                                  );
+                                },
+                              ),
+                            ),
+                            rightTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            topTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 40,
+                                getTitlesWidget: (value, meta) {
+                                  return Text(_formatDate(value.toInt()));
+                                },
+                              ),
                             ),
                           ),
-                          rightTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          topTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 40,
-                              getTitlesWidget: (value, meta) {
-                                return Text(_formatDate(value.toInt()));
+                          barTouchData: BarTouchData(
+                            touchTooltipData: BarTouchTooltipData(
+                              tooltipPadding: const EdgeInsets.all(8),
+                              tooltipRoundedRadius: 8,
+                              getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                                return BarTooltipItem(
+                                  rod.toY.toStringAsFixed(2),
+                                  TextStyle(color: Colors.white),
+                                );
                               },
                             ),
-                          ),
-                        ),
-                        barTouchData: BarTouchData(
-                          touchTooltipData: BarTouchTooltipData(
-                            tooltipPadding: const EdgeInsets.all(8),
-                            tooltipRoundedRadius: 8,
-                            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                              return BarTooltipItem(
-                                rod.toY.toStringAsFixed(2),
-                                TextStyle(color: Colors.white),
-                              );
+                            touchCallback: (FlTouchEvent event, barTouchResponse) {
+                              if (event is FlTapUpEvent && barTouchResponse?.spot != null) {
+                                setState(() {
+                                  selectedValue = barTouchResponse!.spot!.touchedRodData.toY;
+                                });
+                              }
                             },
                           ),
-                          touchCallback: (FlTouchEvent event, barTouchResponse) {
-                            if (event is FlTapUpEvent && barTouchResponse?.spot != null) {
-                              setState(() {
-                                selectedValue = barTouchResponse!.spot!.touchedRodData.toY;
-                              });
-                            }
-                          },
                         ),
                       ),
                     ),
@@ -252,60 +264,64 @@ class _RevenueScreenState extends State<RevenueScreen> {
               Text('Monthly Revenue', style: TextStyle(fontSize: 18)),
               SizedBox(
                 height: 500,
-                child: BarChart(
-                  BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    barGroups: _buildMonthlyRevenueChart(),
-                    titlesData: FlTitlesData(
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 40,
-                          getTitlesWidget: (value, meta) {
-                            if (value == 0) return Text('0');
-                            if (value == 500) return Text('500');
-                            if (value == 1000) return Text('1K');
-                            if (value == 1500) return Text('1.5K');
-                            if (value == 2000) return Text('2K');
-                            if (value == 2300) return Text('2.3K');
-                            return Container();
-                          },
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 16.0, top: 16.0), // Add padding to the left and top to avoid overlap
+                  child: BarChart(
+                    BarChartData(
+                      alignment: BarChartAlignment.spaceAround,
+                      barGroups: _buildMonthlyRevenueChart(),
+                      titlesData: FlTitlesData(
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 60, // Increase reservedSize to prevent overlap
+                            getTitlesWidget: (value, meta) {
+                              // Do not show the highest value on the y-axis
+                              if (value == monthlyRevenue.values.reduce((a, b) => a > b ? a : b)) {
+                                return Container();
+                              }
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8.0), // Add space between label and chart
+                                child: Text(value.toInt().toString()),
+                              );
+                            },
+                          ),
+                        ),
+                        rightTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        topTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 40,
+                            getTitlesWidget: (value, meta) {
+                              return Text(_formatMonth(value.toInt()));
+                            },
+                          ),
                         ),
                       ),
-                      rightTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      topTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 40,
-                          getTitlesWidget: (value, meta) {
-                            return Text(_formatMonth(value.toInt()));
+                      barTouchData: BarTouchData(
+                        touchTooltipData: BarTouchTooltipData(
+                          tooltipPadding: const EdgeInsets.all(8),
+                          tooltipRoundedRadius: 8,
+                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                            return BarTooltipItem(
+                              rod.toY.toStringAsFixed(2),
+                              TextStyle(color: Colors.white),
+                            );
                           },
                         ),
-                      ),
-                    ),
-                    barTouchData: BarTouchData(
-                      touchTooltipData: BarTouchTooltipData(
-                        tooltipPadding: const EdgeInsets.all(8),
-                        tooltipRoundedRadius: 8,
-                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                          return BarTooltipItem(
-                            rod.toY.toStringAsFixed(2),
-                            TextStyle(color: Colors.white),
-                          );
+                        touchCallback: (FlTouchEvent event, barTouchResponse) {
+                          if (event is FlTapUpEvent && barTouchResponse?.spot != null) {
+                            setState(() {
+                              selectedValue = barTouchResponse!.spot!.touchedRodData.toY;
+                            });
+                          }
                         },
                       ),
-                      touchCallback: (FlTouchEvent event, barTouchResponse) {
-                        if (event is FlTapUpEvent && barTouchResponse?.spot != null) {
-                          setState(() {
-                            selectedValue = barTouchResponse!.spot!.touchedRodData.toY;
-                          });
-                        }
-                      },
                     ),
                   ),
                 ),

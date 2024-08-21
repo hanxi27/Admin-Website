@@ -60,7 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 MaterialPageRoute(builder: (context) => RevenueScreen()),
                               );
                             },
-                            child: Text('View Revenue Details'),
+                            child: Text('Monthly and Daily Details'),
                           ),
                         ],
                       ),
