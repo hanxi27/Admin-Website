@@ -5,7 +5,9 @@ import 'gender.dart';
 import 'age.dart';
 import 'items.dart';
 import 'category.dart';
-import 'revenue.dart';
+import 'revenue.dart'; // Import the RevenueScreen
+import 'customer_time_spent_screen.dart'; // Import the CustomerTimeSpentScreen
+import 'details_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -97,7 +99,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => RevenueScreen()),
+                                MaterialPageRoute(builder: (context) => DetailsScreen()),
                               );
                             },
                             child: Text('Monthly and Daily Details'),

@@ -56,7 +56,6 @@ class MyApp extends StatelessWidget {
           '/stock_inventory': (context) => stock_inventory.StockInventoryPage(),
           '/customer_details': (context) => customer_detail.CustomerDetailsPage(),
           '/dashboard': (context) => DashboardScreen(), // Add the dashboard route
-          '/revenue': (context) => RevenueScreen(), // Add the revenue route
         },
         navigatorObservers: <NavigatorObserver>[observer],
       ),
