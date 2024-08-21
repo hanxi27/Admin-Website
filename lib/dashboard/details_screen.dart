@@ -104,9 +104,14 @@ class _DetailsScreenState extends State<DetailsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Total Revenue: RM ${totalRevenue.toStringAsFixed(2)}',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
-              Text('Selected Revenue: RM ${selectedValue.toStringAsFixed(2)}', style: TextStyle(color: Colors.red, fontSize: 18)),
+              Text(
+                'Total Revenue: RM ${totalRevenue.toStringAsFixed(2)}',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+              ),
+              Text(
+                'Selected Revenue: RM ${selectedValue.toStringAsFixed(2)}',
+                style: TextStyle(color: Colors.red, fontSize: 18),
+              ),
               SizedBox(height: 20),
               Text('Selected Year:', style: TextStyle(fontSize: 18)),
               Row(
@@ -136,34 +141,42 @@ class _DetailsScreenState extends State<DetailsScreen> {
                 ),
               ),
               SizedBox(height: 20),
-              // Daily Revenue Chart
-              DailyRevenueChart(
-                dailyRevenue: dailyRevenue,
-                selectedYear: selectedYear,
-                selectedMonth: selectedMonth,
-                onBarTouch: (value) {
-                  setState(() {
-                    selectedValue = value;
-                  });
-                },
+              Row(
+                children: [
+                  Expanded(
+                    child: DailyRevenueChart(
+                      dailyRevenue: dailyRevenue,
+                      selectedYear: selectedYear,
+                      selectedMonth: selectedMonth,
+                      onBarTouch: (value) {
+                        setState(() {
+                          selectedValue = value;
+                        });
+                      },
+                    ),
+                  ),
+                  SizedBox(width: 16), // Add space between the charts
+                  Expanded(
+                    child: VisitChart(
+                      dailyVisits: dailyVisits,
+                      selectedYear: selectedYear,
+                      selectedMonth: selectedMonth,
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(height: 20),  // Space between Daily Revenue and Daily Visits
-              // Daily Visits Chart
-              VisitChart(
-                dailyVisits: dailyVisits,
-                selectedYear: selectedYear,
-                selectedMonth: selectedMonth,
-              ),
-              SizedBox(height: 20),  // Space between Daily Visits and Monthly Revenue
-              // Monthly Revenue Chart
-              MonthlyRevenueChart(
-                monthlyRevenue: monthlyRevenue,
-                selectedYear: selectedYear,
-                onBarTouch: (value) {
-                  setState(() {
-                    selectedValue = value;
-                  });
-                },
+              SizedBox(height: 20),  // Space between top charts and bottom chart
+              Container(
+                width: double.infinity,
+                child: MonthlyRevenueChart(
+                  monthlyRevenue: monthlyRevenue,
+                  selectedYear: selectedYear,
+                  onBarTouch: (value) {
+                    setState(() {
+                      selectedValue = value;
+                    });
+                  },
+                ),
               ),
             ],
           ),
