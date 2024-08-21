@@ -5,6 +5,7 @@ import 'age.dart';
 import 'items.dart';
 import 'category.dart';
 import 'revenue.dart'; // Import the RevenueScreen
+import 'customer_time_spent_screen.dart'; // Import the CustomerTimeSpentScreen
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -61,6 +62,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               );
                             },
                             child: Text('Monthly and Daily Details'),
+                          ),
+                          SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => CustomerTimeSpentScreen()),
+                              );
+                            },
+                            child: Text('Customer Time Spent in Store'),
                           ),
                         ],
                       ),
