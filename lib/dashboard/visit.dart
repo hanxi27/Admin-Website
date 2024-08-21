@@ -62,10 +62,13 @@ class VisitChart extends StatelessWidget {
                           showTitles: true,
                           reservedSize: 60,
                           getTitlesWidget: (value, meta) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: Text(value.toInt().toString()),
-                            );
+                            if (value % 1 == 0 && value > 0) {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: Text(value.toInt().toString()),
+                              );
+                            }
+                            return Container();  // Do not show anything for irrelevant values
                           },
                         ),
                       ),

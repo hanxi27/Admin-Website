@@ -1,8 +1,8 @@
-// details_screen.dart
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'revenue.dart';
+import 'visit.dart';  // Import VisitChart
 
 class DetailsScreen extends StatefulWidget {
   @override
@@ -13,6 +13,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
   double totalRevenue = 0.0;
   Map<DateTime, double> dailyRevenue = {};
   Map<String, double> monthlyRevenue = {};
+  Map<DateTime, int> dailyVisits = {};  // Map to store daily visit data
   double selectedValue = 0.0;
   String selectedYear = '2024';
   String selectedMonth = '08';
@@ -21,6 +22,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
   void initState() {
     super.initState();
     fetchRevenue();
+    fetchDailyVisits();  // Fetch daily visits data
   }
 
   Future<void> fetchRevenue() async {
@@ -45,6 +47,24 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
     setState(() {
       totalRevenue = revenue;
+    });
+  }
+
+  Future<void> fetchDailyVisits() async {
+    Map<DateTime, int> visits = {};
+    QuerySnapshot purchaseSnapshot = await FirebaseFirestore.instance.collection('purchase_history').get();
+
+    for (var purchaseDoc in purchaseSnapshot.docs) {
+      Timestamp timestamp = purchaseDoc['timestamp'];
+      DateTime purchaseDate = timestamp.toDate();
+
+      // Daily visits
+      DateTime day = DateTime(purchaseDate.year, purchaseDate.month, purchaseDate.day);
+      visits[day] = (visits[day] ?? 0) + 1;  // Increment the visit count for each day
+    }
+
+    setState(() {
+      dailyVisits = visits;
     });
   }
 
@@ -96,7 +116,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         selectedYear = '2024';
                       });
                     },
-                    child: Text('2024',),
+                    child: Text('2024'),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(
                           selectedYear == '2024' ? Colors.orange : Colors.grey),
@@ -126,6 +146,12 @@ class _DetailsScreenState extends State<DetailsScreen> {
                     selectedValue = value;
                   });
                 },
+              ),
+              SizedBox(height: 20),  // Add spacing between the charts
+              VisitChart(
+                dailyVisits: dailyVisits,
+                selectedYear: selectedYear,
+                selectedMonth: selectedMonth,
               ),
             ],
           ),
