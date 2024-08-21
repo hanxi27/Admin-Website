@@ -43,12 +43,19 @@ class _EditProductState extends State<EditProduct> {
           _quantityController.text = value['quantity'].toString();
           isLoading = false; // Stop loading
         });
+
+        // Immediately update the allProductsNotifier to reflect the current status
+        widget.product['quantity'] = _quantityController.text;
+        allProductsNotifier.value = List.from(allProductsNotifier.value);  // Trigger UI update in StockInventoryPage
       });
     } else {
       setState(() {
         _quantityController.text = '0';
         isLoading = false; // Stop loading
       });
+      // Immediately handle the case where the quantity is 0
+      widget.product['quantity'] = '0';
+      allProductsNotifier.value = List.from(allProductsNotifier.value);  // Trigger UI update in StockInventoryPage
     }
   }
 

@@ -4,18 +4,17 @@ import 'package:my_new_project/assets.dart';
 
 ValueNotifier<List<Map<String, String>>> allProductsNotifier = ValueNotifier([]);
 
-Future<void> loadProducts() async {
+void loadProducts() async {
   final databaseReference = FirebaseDatabase.instance.ref();
+  
+  // First, check if Firebase has data
   DatabaseEvent event = await databaseReference.child('products').once();
   DataSnapshot snapshot = event.snapshot;
-  if (snapshot.value != null) {
-    Map<dynamic, dynamic> jsonData = snapshot.value as Map<dynamic, dynamic>;
-    List<Map<String, String>> productsList = jsonData.values.map((item) => Map<String, String>.from(item as Map<dynamic, dynamic>)).toList();
-    allProductsNotifier.value = productsList;
-  } else {
-    // Load initial data from assets and save to Firebase
+
+  if (snapshot.value == null) {
+    // Firebase is empty, load initial products
     List<Map<String, String>> initialProducts = [
-     {
+      {
         "title": "Old Town 2 in 1 White Coffee (Coffee & Creamer) 375g",
         "category": "Coffee",
         "price": "RM 18.20",
@@ -408,15 +407,37 @@ Future<void> loadProducts() async {
         "quantity": "20",
       },
     ];
+
     allProductsNotifier.value = initialProducts;
+
+    // Save initial products to Firebase
     await saveProducts();
+  } else {
+    // Firebase has data, set the products
+    Map<dynamic, dynamic> jsonData = snapshot.value as Map<dynamic, dynamic>;
+    List<Map<String, String>> productsList = jsonData.values
+        .map((item) => Map<String, String>.from(item as Map<dynamic, dynamic>))
+        .toList();
+    allProductsNotifier.value = productsList;
   }
+
+  // Set up a real-time listener to update products automatically
+  databaseReference.child('products').onValue.listen((event) {
+    DataSnapshot snapshot = event.snapshot;
+    if (snapshot.value != null) {
+      Map<dynamic, dynamic> jsonData = snapshot.value as Map<dynamic, dynamic>;
+      List<Map<String, String>> productsList = jsonData.values
+          .map((item) => Map<String, String>.from(item as Map<dynamic, dynamic>))
+          .toList();
+      allProductsNotifier.value = productsList;
+    } else {
+      allProductsNotifier.value = []; // No products available
+    }
+  });
 }
 
 Future<void> saveProducts() async {
   final databaseReference = FirebaseDatabase.instance.ref();
   await databaseReference.child('products').set(allProductsNotifier.value);
 }
-
-
 

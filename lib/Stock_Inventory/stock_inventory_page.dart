@@ -22,9 +22,7 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
   @override
   void initState() {
     super.initState();
-    loadProducts().then((_) {
-      setState(() {}); // Update the state after loading products
-    });
+    loadProducts(); // Real-time listener now triggers UI update automatically
   }
 
   List<Map<String, String>> get filteredProducts {
@@ -37,14 +35,13 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
   }
 
   void _viewProduct(Map<String, String> product) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return ViewProduct(product: product);
-    },
-  );
-}
-
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ViewProduct(product: product);
+      },
+    );
+  }
 
   void _editProduct(Map<String, String> product) async {
     bool isUpdated = await showDialog(
@@ -203,7 +200,7 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
                     itemCount: filteredProducts.length,
                     itemBuilder: (context, index) {
                       final product = filteredProducts[index];
-                      bool isOutOfStock = int.parse(product['quantity']!) == 0;
+                      bool isOutOfStock = int.parse(product['quantity'] ?? '0') == 0;
 
                       return GestureDetector(
                         onTap: () => _toggleOptions(index),
