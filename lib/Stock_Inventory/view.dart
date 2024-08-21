@@ -24,12 +24,15 @@ class _ViewProductState extends State<ViewProduct> {
 
   Future<void> _fetchUpdatedQuantity() async {
     final databaseReference = FirebaseDatabase.instance.ref();
-    DatabaseEvent event = await databaseReference.child('products').child(widget.product['title']!).once();
+    DatabaseEvent event = await databaseReference.child('products').orderByChild('title').equalTo(widget.product['title']).once();
     DataSnapshot snapshot = event.snapshot;
     if (snapshot.exists) {
-      setState(() {
-        quantity = int.parse(snapshot.child('quantity').value.toString());
-        isLoading = false; // Stop loading
+      Map<dynamic, dynamic> productData = snapshot.value as Map<dynamic, dynamic>;
+      productData.forEach((key, value) {
+        setState(() {
+          quantity = int.parse(value['quantity'].toString());
+          isLoading = false; // Stop loading
+        });
       });
     } else {
       setState(() {

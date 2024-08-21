@@ -34,12 +34,15 @@ class _EditProductState extends State<EditProduct> {
 
   Future<void> _fetchUpdatedQuantity() async {
     final databaseReference = FirebaseDatabase.instance.ref();
-    DatabaseEvent event = await databaseReference.child('products').child(widget.product['title']!).once();
+    DatabaseEvent event = await databaseReference.child('products').orderByChild('title').equalTo(widget.product['title']).once();
     DataSnapshot snapshot = event.snapshot;
     if (snapshot.exists) {
-      setState(() {
-        _quantityController.text = snapshot.child('quantity').value.toString();
-        isLoading = false; // Stop loading
+      Map<dynamic, dynamic> productData = snapshot.value as Map<dynamic, dynamic>;
+      productData.forEach((key, value) {
+        setState(() {
+          _quantityController.text = value['quantity'].toString();
+          isLoading = false; // Stop loading
+        });
       });
     } else {
       setState(() {
@@ -85,7 +88,8 @@ class _EditProductState extends State<EditProduct> {
     }
   }
 
-  void _saveProduct() {
+  void _saveProduct() async {
+    final databaseReference = FirebaseDatabase.instance.ref();
     setState(() {
       widget.product['title'] = _nameController.text;
       widget.product['price'] = _priceController.text;
@@ -95,8 +99,28 @@ class _EditProductState extends State<EditProduct> {
       widget.product['category'] = _selectedCategory;
     });
 
+    Map<String, String> updatedProduct = {
+      'title': _nameController.text,
+      'price': _priceController.text,
+      'quantity': _quantityController.text,
+      'category': _selectedCategory,
+      'image': widget.product['image']!,
+    };
+
+    await databaseReference
+        .child('products')
+        .orderByChild('title')
+        .equalTo(widget.product['title'])
+        .once()
+        .then((event) {
+      if (event.snapshot.exists) {
+        event.snapshot.children.forEach((childSnapshot) {
+          databaseReference.child('products').child(childSnapshot.key!).update(updatedProduct);
+        });
+      }
+    });
+
     allProductsNotifier.value = List.from(allProductsNotifier.value); // Notify listeners
-    saveProducts(); // Save to Firebase
     Navigator.pop(context, true); // Return true to indicate product was updated
   }
 
@@ -108,78 +132,78 @@ class _EditProductState extends State<EditProduct> {
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: isLoading 
+        child: isLoading
             ? Center(child: CircularProgressIndicator()) // Show loading indicator while fetching data
             : SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Edit Product',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-              _getImageWidget(_selectedImage),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Product Name',
-                  border: OutlineInputBorder(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Edit Product',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 16),
+                    _getImageWidget(_selectedImage),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Product Name',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: _quantityController,
+                      decoration: InputDecoration(
+                        labelText: 'Quantity',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: _priceController,
+                      decoration: InputDecoration(
+                        labelText: 'Price',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                    SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: _selectedCategory,
+                      decoration: InputDecoration(
+                        labelText: 'Product Category',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: [
+                        DropdownMenuItem(value: 'Nutrition', child: Text('Nutrition')),
+                        DropdownMenuItem(value: 'Supplement', child: Text('Supplement')),
+                        DropdownMenuItem(value: 'Tonic', child: Text('Tonic')),
+                        DropdownMenuItem(value: 'Foot Treatment', child: Text('Foot Treatment')),
+                        DropdownMenuItem(value: 'Traditional Medicine', child: Text('Traditional Medicine')),
+                        DropdownMenuItem(value: 'Groceries', child: Text('Groceries')),
+                        DropdownMenuItem(value: 'Coffee', child: Text('Coffee')),
+                        DropdownMenuItem(value: 'Dairy Product', child: Text('Dairy Product')),
+                        DropdownMenuItem(value: 'Make Up', child: Text('Make Up')),
+                        DropdownMenuItem(value: 'Pets Care', child: Text('Pets Care')),
+                        DropdownMenuItem(value: 'Hair Care', child: Text('Hair Care')),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedCategory = value!;
+                        });
+                      },
+                    ),
+                    SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _saveProduct,
+                      child: Text('Save'),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _quantityController,
-                decoration: InputDecoration(
-                  labelText: 'Quantity',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: _priceController,
-                decoration: InputDecoration(
-                  labelText: 'Price',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _selectedCategory,
-                decoration: InputDecoration(
-                  labelText: 'Product Category',
-                  border: OutlineInputBorder(),
-                ),
-                items: [
-                  DropdownMenuItem(value: 'Nutrition', child: Text('Nutrition')),
-                  DropdownMenuItem(value: 'Supplement', child: Text('Supplement')),
-                  DropdownMenuItem(value: 'Tonic', child: Text('Tonic')),
-                  DropdownMenuItem(value: 'Foot Treatment', child: Text('Foot Treatment')),
-                  DropdownMenuItem(value: 'Traditional Medicine', child: Text('Traditional Medicine')),
-                  DropdownMenuItem(value: 'Groceries', child: Text('Groceries')),
-                  DropdownMenuItem(value: 'Coffee', child: Text('Coffee')),
-                  DropdownMenuItem(value: 'Dairy Product', child: Text('Dairy Product')),
-                  DropdownMenuItem(value: 'Make Up', child: Text('Make Up')),
-                  DropdownMenuItem(value: 'Pets Care', child: Text('Pets Care')),
-                  DropdownMenuItem(value: 'Hair Care', child: Text('Hair Care')),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCategory = value!;
-                  });
-                },
-              ),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _saveProduct,
-                child: Text('Save'),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
