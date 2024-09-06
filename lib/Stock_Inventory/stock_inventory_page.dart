@@ -75,7 +75,7 @@ class _StockInventoryPageState extends State<StockInventoryPage> {
       MaterialPageRoute(builder: (context) => AddProduct()),
     );
     if (isAdded) {
-      setState(() {});
+      setState(() {}); // UI will rebuild due to ValueListenableBuilder
     }
   }
 

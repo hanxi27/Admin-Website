@@ -21,6 +21,7 @@ class _AddProductState extends State<AddProduct> {
   late TextEditingController _priceController;
   late String _selectedCategory;
   dynamic _selectedImage;
+  bool _isSaving = false; // Added to prevent duplicate submissions
 
   @override
   void initState() {
@@ -58,34 +59,47 @@ class _AddProductState extends State<AddProduct> {
   }
 
   void _saveProduct() async {
-    if (_formKey.currentState!.validate() && _selectedImage != null) {
-      String imageString;
-      if (kIsWeb) {
-        imageString = base64.encode(_selectedImage);
-      } else {
-        imageString = base64.encode(await (_selectedImage as File).readAsBytes());
-      }
+  if (_formKey.currentState!.validate() && _selectedImage != null) {
+    // Prevent double submission
+    if (_isSaving) return;
+    setState(() {
+      _isSaving = true;
+    });
 
-      final newProduct = {
-        "title": _nameController.text,
-        "category": _selectedCategory,
-        "price": _priceController.text,
-        "quantity": _quantityController.text,  // Added quantity
-        "image": imageString,
-      };
-
-      final databaseReference = FirebaseDatabase.instance.reference();
-      await databaseReference.child('products').push().set(newProduct);
-
-      allProductsNotifier.value = [...allProductsNotifier.value, newProduct]; // Add new product to ValueNotifier
-
-      Navigator.pop(context, true); // Return true to indicate product was added
-    } else if (_selectedImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Please select an image'),
-      ));
+    String imageString;
+    if (kIsWeb) {
+      imageString = base64.encode(_selectedImage);
+    } else {
+      imageString = base64.encode(await (_selectedImage as File).readAsBytes());
     }
+
+    final newProduct = {
+      "title": _nameController.text,
+      "category": _selectedCategory,
+      "price": _priceController.text,
+      "quantity": _quantityController.text,
+      "image": imageString,
+    };
+
+    final databaseReference = FirebaseDatabase.instance.reference();
+    await databaseReference.child('products').push().set(newProduct);
+
+    // Do not manually append the product here; Firebase will automatically handle this.
+    // allProductsNotifier.value = [...allProductsNotifier.value, newProduct];
+
+    // Reset the saving state
+    setState(() {
+      _isSaving = false;
+    });
+
+    Navigator.pop(context, true); // Return true to indicate product was added
+  } else if (_selectedImage == null) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Please select an image'),
+    ));
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
