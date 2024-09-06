@@ -6,7 +6,7 @@ ValueNotifier<List<Map<String, String>>> allProductsNotifier = ValueNotifier([])
 
 void loadProducts() async {
   final databaseReference = FirebaseDatabase.instance.ref();
-  
+
   // First, check if Firebase has data
   DatabaseEvent event = await databaseReference.child('products').once();
   DataSnapshot snapshot = event.snapshot;
@@ -414,22 +414,38 @@ void loadProducts() async {
     await saveProducts();
   } else {
     // Firebase has data, set the products
-    Map<dynamic, dynamic> jsonData = snapshot.value as Map<dynamic, dynamic>;
-    List<Map<String, String>> productsList = jsonData.values
-        .map((item) => Map<String, String>.from(item as Map<dynamic, dynamic>))
-        .toList();
-    allProductsNotifier.value = productsList;
+    if (snapshot.value is List) {
+      List<dynamic> jsonData = snapshot.value as List<dynamic>;
+      List<Map<String, String>> productsList = jsonData
+          .map((item) => Map<String, String>.from(item as Map<dynamic, dynamic>))
+          .toList();
+      allProductsNotifier.value = productsList;
+    } else if (snapshot.value is Map) {
+      Map<dynamic, dynamic> jsonData = snapshot.value as Map<dynamic, dynamic>;
+      List<Map<String, String>> productsList = jsonData.values
+          .map((item) => Map<String, String>.from(item as Map<dynamic, dynamic>))
+          .toList();
+      allProductsNotifier.value = productsList;
+    }
   }
 
   // Set up a real-time listener to update products automatically
   databaseReference.child('products').onValue.listen((event) {
     DataSnapshot snapshot = event.snapshot;
     if (snapshot.value != null) {
-      Map<dynamic, dynamic> jsonData = snapshot.value as Map<dynamic, dynamic>;
-      List<Map<String, String>> productsList = jsonData.values
-          .map((item) => Map<String, String>.from(item as Map<dynamic, dynamic>))
-          .toList();
-      allProductsNotifier.value = productsList;
+      if (snapshot.value is List) {
+        List<dynamic> jsonData = snapshot.value as List<dynamic>;
+        List<Map<String, String>> productsList = jsonData
+            .map((item) => Map<String, String>.from(item as Map<dynamic, dynamic>))
+            .toList();
+        allProductsNotifier.value = productsList;
+      } else if (snapshot.value is Map) {
+        Map<dynamic, dynamic> jsonData = snapshot.value as Map<dynamic, dynamic>;
+        List<Map<String, String>> productsList = jsonData.values
+            .map((item) => Map<String, String>.from(item as Map<dynamic, dynamic>))
+            .toList();
+        allProductsNotifier.value = productsList;
+      }
     } else {
       allProductsNotifier.value = []; // No products available
     }
@@ -440,4 +456,3 @@ Future<void> saveProducts() async {
   final databaseReference = FirebaseDatabase.instance.ref();
   await databaseReference.child('products').set(allProductsNotifier.value);
 }
-
